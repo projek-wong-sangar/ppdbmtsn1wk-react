@@ -67,7 +67,7 @@ const Informasi = () => {
         <div className="container-custom text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Informasi PPDB</h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Panduan lengkap persyaratan, berkas, dan alur pendaftaran PPDB MTsN 1 Way Kanan 2024/2025
+            Panduan lengkap persyaratan, berkas, dan alur pendaftaran PPDB MTsN 1 Way Kanan 2025/2026
           </p>
         </div>
       </section>
@@ -187,7 +187,7 @@ const Informasi = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-5xl font-bold mb-2">250 Siswa</div>
-                <p className="opacity-90">Untuk Tahun Pelajaran 2024/2025</p>
+                <p className="opacity-90">Untuk Tahun Pelajaran 2025/2026</p>
               </CardContent>
             </Card>
           </section>

@@ -52,7 +52,7 @@ const Index = () => {
               PPDB MTsN 1 Way Kanan
             </h1>
             <p className="text-xl md:text-2xl mb-4 opacity-95">
-              Tahun Pelajaran 2024/2025
+              Tahun Pelajaran 2025/2026
             </p>
             <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
               Bergabunglah dengan madrasah terbaik di Way Kanan. Wujudkan cita-cita menjadi generasi Qur'ani, berakhlak mulia, dan berprestasi.
@@ -126,7 +126,7 @@ const Index = () => {
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Timeline PPDB 2024/2025
+              Timeline PPDB 2025/2026
             </h2>
             <p className="text-lg text-foreground">
               Ikuti setiap tahapan pendaftaran dengan baik

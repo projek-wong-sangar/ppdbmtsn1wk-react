@@ -10,11 +10,11 @@ const Pengumuman = () => {
   const announcements = [
     {
       id: 1,
-      title: 'Pembukaan PPDB Tahun Pelajaran 2024/2025',
+      title: 'Pembukaan PPDB Tahun Pelajaran 2025/2026',
       date: '2025-01-01T08:00:00',
       category: 'Penting',
       content:
-        'Pendaftaran Peserta Didik Baru (PPDB) MTsN 1 Way Kanan Tahun Pelajaran 2024/2025 dibuka mulai tanggal 1 Januari 2025. Calon siswa dapat mendaftar secara online melalui website ini. Kuota yang tersedia sebanyak 250 siswa.',
+        'Pendaftaran Peserta Didik Baru (PPDB) MTsN 1 Way Kanan Tahun Pelajaran 2025/2026 dibuka mulai tanggal 1 Januari 2025. Calon siswa dapat mendaftar secara online melalui website ini. Kuota yang tersedia sebanyak 250 siswa.',
     },
     {
       id: 2,
@@ -64,7 +64,7 @@ const Pengumuman = () => {
         <div className="container-custom text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Pengumuman</h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Informasi terbaru seputar PPDB MTsN 1 Way Kanan 2024/2025
+            Informasi terbaru seputar PPDB MTsN 1 Way Kanan 2025/2026
           </p>
         </div>
       </section>

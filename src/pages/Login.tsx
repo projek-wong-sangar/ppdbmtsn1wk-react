@@ -57,7 +57,7 @@ const Login = () => {
             <span className="text-primary-foreground font-bold text-2xl">M</span>
           </div>
           <CardTitle className="text-2xl font-bold">Masuk ke Akun</CardTitle>
-          <CardDescription>PPDB MTsN 1 Way Kanan 2024/2025</CardDescription>
+          <CardDescription>PPDB MTsN 1 Way Kanan 2025/2026</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

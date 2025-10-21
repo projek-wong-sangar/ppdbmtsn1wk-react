@@ -39,7 +39,7 @@ const Navigation = () => {
             </div>
             <div className="hidden sm:block">
               <div className="text-foreground font-bold text-lg">MTsN 1 Way Kanan</div>
-              <div className="text-foreground text-xs">PPDB 2024/2025</div>
+              <div className="text-foreground text-xs">PPDB 2025/2026</div>
             </div>
           </Link>
 
