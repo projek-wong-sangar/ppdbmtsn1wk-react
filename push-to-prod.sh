@@ -11,8 +11,8 @@ COMMIT_MSG=$1
 # Switch ke prod
 git checkout prod
 
-# Reset isi prod agar sama dengan main (copy file, bukan commit history)
-git checkout main -- .
+# Reset isi prod agar sama dengan dev (copy file, bukan commit history)
+git checkout dev -- .
 
 # Commit perubahan dengan pesan custom
 git add .
@@ -23,5 +23,5 @@ git push -f origin prod
 
 echo "Production branch has been updated with custom commit message: $COMMIT_MSG"
 
-# Balik lagi ke main
-git checkout main
+# Balik lagi ke dev
+git checkout dev
