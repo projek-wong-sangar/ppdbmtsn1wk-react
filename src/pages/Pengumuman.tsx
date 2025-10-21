@@ -83,7 +83,7 @@ const Pengumuman = () => {
                         </Badge>
                       </div>
                       <CardTitle className="text-2xl mb-3">{announcement.title}</CardTitle>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-foreground">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           <span>
@@ -101,7 +101,7 @@ const Pengumuman = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted leading-relaxed">{announcement.content}</p>
+                  <p className="text-foreground leading-relaxed">{announcement.content}</p>
                 </CardContent>
               </Card>
             ))}
@@ -110,7 +110,7 @@ const Pengumuman = () => {
           {announcements.length === 0 && (
             <Card>
               <CardContent className="p-12 text-center">
-                <p className="text-muted text-lg">Belum ada pengumuman saat ini</p>
+                <p className="text-foreground text-lg">Belum ada pengumuman saat ini</p>
               </CardContent>
             </Card>
           )}

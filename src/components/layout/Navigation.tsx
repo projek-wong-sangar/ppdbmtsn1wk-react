@@ -31,12 +31,15 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">M</span>
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img src="https://lulusku.kemusukkidul.com/img/kemenag.png" alt="Logo KEMENAG" />
+            </div>
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img src="https://mtsn1waykanan.com/img/mtsn1logo.png" alt="Logo MTsN 1 Way Kanan" />
             </div>
             <div className="hidden sm:block">
               <div className="text-foreground font-bold text-lg">MTsN 1 Way Kanan</div>
-              <div className="text-muted text-xs">PPDB 2024/2025</div>
+              <div className="text-foreground text-xs">PPDB 2024/2025</div>
             </div>
           </Link>
 

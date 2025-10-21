@@ -105,7 +105,7 @@ export const adminService = {
       tanggal_lahir: '2010-05-15',
       jenis_kelamin: 'L',
       agama: 'Islam',
-      alamat: 'Jl. Raya Way Kanan No. 123',
+      alamat: 'Jl. Lintas Sumatera, Blambangan Umpu, Kabupaten Way Kanan, Lampung.',
       no_hp: '081234567890',
       email: 'ahmad@example.com',
       asal_sekolah: 'SDN 1 Way Kanan',

@@ -8,7 +8,7 @@ const StatusSiswa = () => {
       <div className="section-padding">
         <div className="container-custom">
           <h1 className="text-3xl font-bold mb-8">Status Pendaftaran</h1>
-          <p className="text-muted">Halaman status dalam pengembangan</p>
+          <p className="text-foreground">Halaman status dalam pengembangan</p>
         </div>
       </div>
       <Footer />

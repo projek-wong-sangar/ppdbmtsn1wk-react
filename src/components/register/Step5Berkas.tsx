@@ -63,9 +63,9 @@ const Step5Berkas = ({ data, onNext, onPrev }: Props) => {
             </div>
           ) : (
             <div className="space-y-2">
-              <Upload className="w-8 h-8 mx-auto text-muted" />
-              <p className="text-sm text-muted">Klik untuk upload</p>
-              <p className="text-xs text-muted">{accept} • Max {maxSize}</p>
+              <Upload className="w-8 h-8 mx-auto text-foreground" />
+              <p className="text-sm text-foreground">Klik untuk upload</p>
+              <p className="text-xs text-foreground">{accept} • Max {maxSize}</p>
             </div>
           )}
         </label>

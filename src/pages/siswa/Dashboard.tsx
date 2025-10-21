@@ -24,17 +24,17 @@ const DashboardSiswa = () => {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <span className="text-muted">Nomor Pendaftaran:</span>
+                  <span className="text-foreground">Nomor Pendaftaran:</span>
                   <p className="text-2xl font-bold text-primary">{status.no_pendaftaran}</p>
                 </div>
                 <div>
-                  <span className="text-muted">Status:</span>
+                  <span className="text-foreground">Status:</span>
                   <div className="mt-2">
                     <Badge className="bg-warning">{status.status}</Badge>
                   </div>
                 </div>
                 <div>
-                  <span className="text-muted">Tanggal Daftar:</span>
+                  <span className="text-foreground">Tanggal Daftar:</span>
                   <p className="font-medium">{status.tanggal_daftar}</p>
                 </div>
               </div>

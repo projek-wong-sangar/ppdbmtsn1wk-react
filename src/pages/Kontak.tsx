@@ -8,7 +8,7 @@ const Kontak = () => {
     {
       icon: MapPin,
       title: 'Alamat',
-      content: 'Jl. Raya Way Kanan, Kecamatan Blambangan Umpu, Kabupaten Way Kanan, Lampung 34771',
+      content: 'Jl. Lintas Sumatera, Blambangan Umpu, Kabupaten Way Kanan, Lampung. 34771',
     },
     {
       icon: Phone,
@@ -73,7 +73,7 @@ const Kontak = () => {
                 <h2 className="text-3xl font-bold text-foreground mb-2">
                   MTsN 1 Way Kanan
                 </h2>
-                <p className="text-muted text-lg">
+                <p className="text-foreground text-lg">
                   Madrasah Tsanawiyah Negeri terbaik di Way Kanan
                 </p>
               </div>
@@ -91,12 +91,12 @@ const Kontak = () => {
                           {contact.href ? (
                             <a
                               href={contact.href}
-                              className="text-muted hover:text-primary transition-colors"
+                              className="text-foreground hover:text-primary transition-colors"
                             >
                               {contact.content}
                             </a>
                           ) : (
-                            <p className="text-muted">{contact.content}</p>
+                            <p className="text-foreground">{contact.content}</p>
                           )}
                         </div>
                       </div>
@@ -130,7 +130,7 @@ const Kontak = () => {
               <Card className="overflow-hidden h-full">
                 <CardContent className="p-0 h-full min-h-[500px]">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127343.89313307266!2d104.57000000000001!3d-4.8400000000000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e3b7e5e1e1e1e1e%3A0x1e1e1e1e1e1e1e1e!2sWay%20Kanan%2C%20Lampung!5e0!3m2!1sid!2sid!4v1234567890123!5m2!1sid!2sid"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.3204527473085!2d104.45607199999999!3d-4.714288600000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e388fc3f5966b99%3A0x8593780b9de1bc7d!2sMTsN%201%20Way%20Kanan!5e0!3m2!1sid!2sid!4v1761052197253!5m2!1sid!2sid"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -156,7 +156,7 @@ const Kontak = () => {
                   <h3 className="font-bold text-foreground mb-2">
                     Kapan batas akhir pendaftaran?
                   </h3>
-                  <p className="text-muted">
+                  <p className="text-foreground">
                     Pendaftaran ditutup pada tanggal 31 Januari 2025 pukul 23:59 WIB.
                   </p>
                 </CardContent>
@@ -167,7 +167,7 @@ const Kontak = () => {
                   <h3 className="font-bold text-foreground mb-2">
                     Berapa biaya pendaftaran?
                   </h3>
-                  <p className="text-muted">
+                  <p className="text-foreground">
                     Pendaftaran PPDB MTsN 1 Way Kanan adalah GRATIS, tidak dipungut biaya apapun.
                   </p>
                 </CardContent>
@@ -178,7 +178,7 @@ const Kontak = () => {
                   <h3 className="font-bold text-foreground mb-2">
                     Bagaimana jika lupa password?
                   </h3>
-                  <p className="text-muted">
+                  <p className="text-foreground">
                     Anda dapat menghubungi admin via WhatsApp atau email untuk reset password.
                   </p>
                 </CardContent>
@@ -189,7 +189,7 @@ const Kontak = () => {
                   <h3 className="font-bold text-foreground mb-2">
                     Apakah bisa daftar offline?
                   </h3>
-                  <p className="text-muted">
+                  <p className="text-foreground">
                     Untuk tahun ini, pendaftaran hanya dilakukan secara online melalui website.
                   </p>
                 </CardContent>

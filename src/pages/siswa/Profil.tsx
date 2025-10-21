@@ -8,7 +8,7 @@ const ProfilSiswa = () => {
       <div className="section-padding">
         <div className="container-custom">
           <h1 className="text-3xl font-bold mb-8">Profil Siswa</h1>
-          <p className="text-muted">Halaman profil dalam pengembangan</p>
+          <p className="text-foreground">Halaman profil dalam pengembangan</p>
         </div>
       </div>
       <Footer />

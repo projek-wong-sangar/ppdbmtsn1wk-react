@@ -1,0 +1,46 @@
+name: 🚧 Feature / Task
+description: Gunakan ini untuk pekerjaan seperti pengembangan fitur, integrasi, refactor, dll.
+title: "[Fitur] Judul singkat dan jelas"
+labels: ["feature", "todo"]
+body:
+  - type: textarea
+    attributes:
+      label: 🎯 Tujuan
+      description: Jelaskan apa yang ingin dicapai dalam task/fitur ini.
+      placeholder: >
+        Contoh:
+        - Implementasi API untuk ambil data deteksi pothole
+        - Setup backend untuk menyimpan data ke DB
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🛠️ Langkah Teknis
+      description: Langkah-langkah yang harus dilakukan (boleh dalam bentuk checklist).
+      placeholder: >
+        - [ ] Buat branch dari `dev`
+        - [ ] Tambahkan endpoint GET /detections
+        - [ ] Uji dengan Postman
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 📌 Catatan Tambahan
+      description: Hal-hal penting atau keputusan yang memengaruhi implementasi
+      placeholder: >
+        - Gunakan Prisma untuk ORM
+        - Validasi input dari frontend
+    validations:
+      required: false
+
+  - type: dropdown
+    attributes:
+      label: ⏳ Prioritas
+      options:
+        - Tinggi
+        - Sedang
+        - Rendah
+    validations:
+      required: false

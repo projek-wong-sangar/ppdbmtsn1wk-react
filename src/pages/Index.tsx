@@ -59,13 +59,13 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register">
-                <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg">
+                <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/70 shadow-lg">
                   Daftar Sekarang
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/informasi">
-                <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+                <Button size="lg" variant="link" className="bg-primary-foreground text-primary hover:bg-primary-foreground/70 shadow-lg">
                   Informasi Lengkap
                 </Button>
               </Link>
@@ -85,7 +85,7 @@ const Index = () => {
                     <stat.icon className="w-6 h-6 text-primary" />
                   </div>
                   <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
-                  <div className="text-sm text-muted">{stat.label}</div>
+                  <div className="text-sm text-foreground">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -100,7 +100,7 @@ const Index = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Mengapa Memilih MTsN 1 Way Kanan?
             </h2>
-            <p className="text-lg text-muted max-w-2xl mx-auto">
+            <p className="text-lg text-foreground max-w-2xl mx-auto">
               Kami menyediakan lingkungan belajar yang kondusif dengan fasilitas terbaik
             </p>
           </div>
@@ -113,7 +113,7 @@ const Index = () => {
                     <feature.icon className="w-7 h-7 text-primary" />
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-muted">{feature.desc}</p>
+                  <p className="text-foreground">{feature.desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -128,7 +128,7 @@ const Index = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Timeline PPDB 2024/2025
             </h2>
-            <p className="text-lg text-muted">
+            <p className="text-lg text-foreground">
               Ikuti setiap tahapan pendaftaran dengan baik
             </p>
           </div>
@@ -149,7 +149,7 @@ const Index = () => {
                       <h3 className="text-xl font-bold text-foreground mb-1">
                         {item.phase}
                       </h3>
-                      <p className="text-muted">{item.date}</p>
+                      <p className="text-foreground">{item.date}</p>
                     </div>
                     {item.status === 'active' && (
                       <span className="px-4 py-1 bg-primary text-primary-foreground rounded-full text-sm font-medium">

@@ -42,19 +42,19 @@ const Step6Verifikasi = ({ data, onPrev, onSubmitSuccess }: Props) => {
         <Card>
           <CardContent className="p-4 space-y-2 text-sm">
             <div className="grid grid-cols-2">
-              <span className="text-muted">Nama:</span>
+              <span className="text-foreground">Nama:</span>
               <span className="font-medium">{data.nama_lengkap}</span>
             </div>
             <div className="grid grid-cols-2">
-              <span className="text-muted">NISN:</span>
+              <span className="text-foreground">NISN:</span>
               <span className="font-medium">{data.nisn}</span>
             </div>
             <div className="grid grid-cols-2">
-              <span className="text-muted">Email:</span>
+              <span className="text-foreground">Email:</span>
               <span className="font-medium">{data.email}</span>
             </div>
             <div className="grid grid-cols-2">
-              <span className="text-muted">Asal Sekolah:</span>
+              <span className="text-foreground">Asal Sekolah:</span>
               <span className="font-medium">{data.asal_sekolah}</span>
             </div>
           </CardContent>

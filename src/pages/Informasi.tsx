@@ -138,7 +138,7 @@ const Informasi = () => {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-foreground mb-1">{item.title}</h3>
-                        <p className="text-muted">{item.desc}</p>
+                        <p className="text-foreground">{item.desc}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -169,7 +169,7 @@ const Informasi = () => {
                       {jadwal.map((item, index) => (
                         <tr key={index} className="border-t border-border">
                           <td className="p-4 text-foreground">{item.kegiatan}</td>
-                          <td className="p-4 text-muted">{item.waktu}</td>
+                          <td className="p-4 text-foreground">{item.waktu}</td>
                         </tr>
                       ))}
                     </tbody>

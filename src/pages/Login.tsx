@@ -96,7 +96,7 @@ const Login = () => {
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <p className="text-muted">
+            <p className="text-foreground">
               Belum punya akun?{' '}
               <Link to="/register" className="text-primary hover:underline font-medium">
                 Daftar sekarang
@@ -105,7 +105,7 @@ const Login = () => {
           </div>
 
           <div className="mt-4 text-center">
-            <Link to="/" className="text-sm text-muted hover:text-foreground">
+            <Link to="/" className="text-sm text-foreground hover:text-foreground">
               ← Kembali ke Beranda
             </Link>
           </div>

@@ -1,0 +1,10 @@
+services:
+  ppdbmtsn1wk-react:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ppdbmtsn1wk-react
+    image: ppdbmtsn1wk-react:latest
+    ports:
+      - "3007:80"
+    restart: always

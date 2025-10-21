@@ -81,7 +81,7 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span className="opacity-90">
-                  Jl. Raya Way Kanan, Kecamatan Blambangan Umpu, Kabupaten Way Kanan, Lampung
+                  Jl. Lintas Sumatera, Blambangan Umpu, Kabupaten Way Kanan, Lampung.
                 </span>
               </li>
               <li className="flex items-center gap-3">

@@ -72,14 +72,14 @@ const Register = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="bg-accent/10 p-6 rounded-lg text-center">
-                  <p className="text-sm text-muted mb-2">Nomor Pendaftaran Anda</p>
+                  <p className="text-sm text-foreground mb-2">Nomor Pendaftaran Anda</p>
                   <p className="text-3xl font-bold text-primary">{noPendaftaran}</p>
-                  <p className="text-sm text-muted mt-2">
+                  <p className="text-sm text-foreground mt-2">
                     Simpan nomor ini untuk tracking status pendaftaran
                   </p>
                 </div>
 
-                <div className="space-y-3 text-sm text-muted">
+                <div className="space-y-3 text-sm text-foreground">
                   <p className="font-medium text-foreground">Langkah Selanjutnya:</p>
                   <ul className="list-disc list-inside space-y-2 ml-2">
                     <li>Login ke dashboard untuk melihat status pendaftaran</li>
@@ -119,7 +119,7 @@ const Register = () => {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
               Formulir Pendaftaran
             </h1>
-            <p className="text-muted">
+            <p className="text-foreground">
               Lengkapi semua data dengan benar dan teliti
             </p>
           </div>
@@ -130,7 +130,7 @@ const Register = () => {
               <span className="text-sm font-medium text-foreground">
                 Step {currentStep} dari {totalSteps}
               </span>
-              <span className="text-sm text-muted">{Math.round(progress)}% selesai</span>
+              <span className="text-sm text-foreground">{Math.round(progress)}% selesai</span>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
@@ -151,7 +151,7 @@ const Register = () => {
                         ? 'bg-primary text-primary-foreground'
                         : step.number < currentStep
                         ? 'bg-success text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
+                        : 'bg-muted text-foreground-foreground'
                     }`}
                   >
                     {step.number < currentStep ? '✓' : step.number}

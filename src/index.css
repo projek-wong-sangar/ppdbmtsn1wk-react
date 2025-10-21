@@ -8,7 +8,7 @@
     --primary: 120 100% 19.6%; /* #006400 - Dark Green */
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 120 61% 34%; /* #228B22 - Forest Green */
+    --secondary: 122 39% 49%; /* #28a745 - Green */
     --secondary-foreground: 0 0% 100%;
     
     --background: 0 0% 100%;
@@ -72,10 +72,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 120 100% 19.6%; /* #006400 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 122 39% 49%; /* #28a745 */
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
