@@ -71,6 +71,11 @@ const Footer = () => {
                   Daftar Sekarang
                 </Link>
               </li>
+              <li>
+                <Link to="/faq" className="hover:underline opacity-90 hover:opacity-100">
+                  FAQ
+                </Link>
+              </li>
             </ul>
           </div>
 
