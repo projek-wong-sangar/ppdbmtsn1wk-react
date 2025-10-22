@@ -1,7 +1,7 @@
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, HelpCircle, Search } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 
 interface FAQItem {
   id: string;
@@ -18,84 +18,84 @@ export default function FAQ() {
   const faqItems: FAQItem[] = [
     {
       id: '1',
-      question: 'What is Certify?',
-      answer: 'Certify is a blockchain-powered certificate issuance platform that allows organizations to create, manage, and issue digital certificates as NFTs. Recipients truly own their certificates, and anyone can verify their authenticity instantly.',
+      question: 'Apa itu PPDB MTsN 1 Way Kanan?',
+      answer: 'PPDB (Penerimaan Peserta Didik Baru) MTsN 1 Way Kanan adalah proses pendaftaran dan seleksi calon peserta didik baru yang dilaksanakan secara online melalui website ini.',
       category: 'general'
     },
     {
       id: '2',
-      question: 'How do I get started as a user?',
-      answer: 'To get started as a user, simply connect your crypto wallet, browse available events, register for events you\'re interested in, attend them, and then mint your certificates using the token codes provided.',
+      question: 'Siapa saja yang dapat mendaftar?',
+      answer: 'Siswa lulusan SD/MI atau sederajat pada tahun berjalan atau tahun sebelumnya yang memenuhi persyaratan administrasi dan usia yang ditetapkan.',
       category: 'users'
     },
     {
       id: '3',
-      question: 'What wallet do I need?',
-      answer: 'You need a Web3 wallet like MetaMask, WalletConnect, or any Ethereum-compatible wallet. The wallet is used for authentication and to receive your NFT certificates.',
-      category: 'technical'
-    },
-    {
-      id: '4',
-      question: 'How do I create an event as a vendor?',
-      answer: 'Register as a vendor, connect your wallet, go to your dashboard, and click "Create Event". Fill in the event details, set up your whitelist requirements, and publish your event.',
-      category: 'vendors'
-    },
-    {
-      id: '5',
-      question: 'Are the certificates really owned by me?',
-      answer: 'Yes! Certificates are minted as NFTs directly to your wallet. You have full ownership and control over them. They cannot be revoked or taken away once minted.',
-      category: 'users'
-    },
-    {
-      id: '6',
-      question: 'How can I verify a certificate?',
-      answer: 'You can verify any certificate by visiting the verification page and entering the token ID. The blockchain will instantly confirm if the certificate is authentic and provide all relevant details.',
+      question: 'Kapan jadwal pendaftaran dibuka dan ditutup?',
+      answer: 'Jadwal pendaftaran mengacu pada pengumuman resmi di halaman Informasi dan Pengumuman. Mohon cek secara berkala untuk tanggal mulai dan batas akhir pendaftaran.',
       category: 'general'
     },
     {
+      id: '4',
+      question: 'Bagaimana alur pendaftaran di website ini?',
+      answer: 'Buat akun, login, lengkapi data diri, alamat, asal sekolah, data orang tua, unggah berkas, lalu verifikasi dan kirim. Anda dapat memantau status pada halaman Dashboard.',
+      category: 'users'
+    },
+    {
+      id: '5',
+      question: 'Apakah ada biaya pendaftaran?',
+      answer: 'PPDB MTsN 1 Way Kanan tidak memungut biaya pendaftaran (GRATIS). Waspada terhadap penipuan yang mengatasnamakan panitia.',
+      category: 'general'
+    },
+    {
+      id: '6',
+      question: 'Apa saja berkas yang perlu diunggah?',
+      answer: 'Umumnya meliputi pas foto, scan akta kelahiran, kartu keluarga, rapor/surat keterangan lulus, serta berkas pendukung lain bila diminta. Lihat detail pada langkah Berkas.',
+      category: 'users'
+    },
+    {
       id: '7',
-      question: 'What happens if I lose access to my wallet?',
-      answer: 'If you lose access to your wallet, you lose access to your certificates. This is the nature of blockchain ownership. Always backup your wallet seed phrase securely.',
+      question: 'Bagaimana jika lupa kata sandi akun?',
+      answer: 'Silakan hubungi panitia melalui email ppdb@mtsn1waykanan.sch.id atau menu Kontak untuk bantuan reset akses akun.',
       category: 'technical'
     },
     {
       id: '8',
-      question: 'Can I revoke certificates as a vendor?',
-      answer: 'Once a certificate is minted as an NFT, it cannot be revoked or deleted. However, you can mark certificates as revoked in our system, which will show up during verification.',
-      category: 'vendors'
-    },
-    {
-      id: '9',
-      question: 'Is there a cost to mint certificates?',
-      answer: 'There may be small blockchain transaction fees (gas fees) when minting certificates. The exact cost depends on network congestion at the time of minting.',
+      question: 'Mengapa unggah berkas saya gagal?',
+      answer: 'Pastikan ukuran dan format file sesuai ketentuan, koneksi internet stabil, dan coba ulang. Jika tetap gagal, hubungi panitia melalui halaman Kontak.',
       category: 'technical'
     },
     {
-      id: '10',
-      question: 'Can I use certificates on other platforms?',
-      answer: 'Yes! Since certificates are standard NFTs, they can be displayed in any NFT wallet, marketplace, or platform that supports NFTs. They\'re not locked to Certify.',
+      id: '9',
+      question: 'Bagaimana cara melihat status pendaftaran?',
+      answer: 'Masuk ke Dashboard setelah login. Status akan diperbarui oleh panitia, termasuk verifikasi berkas dan hasil seleksi.',
       category: 'users'
     },
     {
+      id: '10',
+      question: 'Kapan dan di mana hasil seleksi diumumkan?',
+      answer: 'Hasil seleksi akan diumumkan melalui halaman Pengumuman pada tanggal yang ditentukan. Pantau halaman tersebut secara berkala.',
+      category: 'general'
+    },
+    {
       id: '11',
-      question: 'How do I manage my event whitelist?',
-      answer: 'In your vendor dashboard, go to the specific event and click "View Whitelist". You can see all registered users, export the list, and revoke access if needed.',
+      question: 'Apa yang harus dilakukan setelah dinyatakan lulus?',
+      answer: 'Ikuti instruksi daftar ulang pada Pengumuman, siapkan berkas fisik bila diminta, dan lakukan konfirmasi kehadiran sesuai jadwal.',
       category: 'vendors'
     },
     {
       id: '12',
-      question: 'What blockchain does Certify use?',
-      answer: 'Certify is built on Ethereum, ensuring maximum compatibility and security. Your certificates are stored on the Ethereum blockchain permanently.',
-      category: 'technical'
+      question: 'Siapa yang dapat dihubungi bila membutuhkan bantuan?',
+      answer: 'Anda dapat menghubungi panitia melalui halaman Kontak atau email ke ppdb@mtsn1waykanan.sch.id pada jam operasional.',
+      category: 'vendors'
     }
   ];
 
   const categories = [
-    { id: 'all', label: 'All Questions' },
-    { id: 'general', label: 'General' },
-    { id: 'users', label: 'For Users' },
-    { id: 'vendors', label: 'For Vendors' },
-    { id: 'technical', label: 'Technical' }
+    { id: 'all', label: 'Semua Pertanyaan' },
+    { id: 'general', label: 'Umum' },
+    { id: 'users', label: 'Pendaftar' },
+    { id: 'vendors', label: 'Orang Tua/Wali' },
+    { id: 'technical', label: 'Teknis' }
   ];
 
   const filteredFAQs = faqItems.filter(item => {
@@ -117,9 +117,9 @@ export default function FAQ() {
     <div className="min-h-screen bg-background">
          <Navigation />
         {/* Header */}
-        <section className="bg-primary text-primary-foreground section-padding">
+        <section className="bg-primary text-primary-foreground section-padding mb-16">
         <div className="container-custom text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Question</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Pertanyaan yang Sering Diajukan (FAQ)</h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
           Temukan jawaban atas pertanyaan umum tentang PPDB MTsN 1 Way Kanan
           </p>
@@ -138,7 +138,7 @@ export default function FAQ() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search questions..."
+                  placeholder="Cari pertanyaan..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -214,10 +214,10 @@ export default function FAQ() {
               <Search className="h-8 w-8 text-gray-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No questions found
+              Tidak ada pertanyaan ditemukan
             </h3>
             <p className="text-gray-600 mb-6">
-              Try adjusting your search terms or category filter
+              Coba ubah kata kunci atau kategori pencarian
             </p>
             <button
               onClick={() => {
@@ -226,7 +226,7 @@ export default function FAQ() {
               }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
-              Clear Filters
+              Bersihkan Filter
             </button>
           </div>
         )}
@@ -234,23 +234,23 @@ export default function FAQ() {
         {/* Contact Section */}
         <div className="mt-16 mb-16 bg-gradient-to-br from-primary via-primary to-secondary rounded-2xl p-8 text-white text-center">
           <h2 className="text-2xl font-bold mb-4">
-            Still have questions?
+            Masih ada pertanyaan?
           </h2>
           <p className="text-blue-100 mb-6">
-            Can't find the answer you're looking for? Our support team is here to help.
+            Jika belum menemukan jawaban, silakan hubungi panitia PPDB kami.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:support@certify.com"
+              href="mailto:ppdb@mtsn1waykanan.sch.id"
               className="bg-muted text-primary hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-all"
             >
-              Contact Support
+              Hubungi Panitia
             </a>
             <a
-              href="/about"
+              href="/kontak"
               className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-6 py-3 rounded-lg font-semibold transition-all"
             >
-              Learn More
+              Lihat Halaman Kontak
             </a>
           </div>
         </div>
