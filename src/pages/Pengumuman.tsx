@@ -2,11 +2,15 @@ import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useState } from 'react';
 
 const Pengumuman = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
   const announcements = [
     {
       id: 1,
@@ -42,6 +46,20 @@ const Pengumuman = () => {
     },
   ];
 
+  const categories = [
+    { id: 'all', label: 'Semua Kategori' },
+    { id: 'Penting', label: 'Penting' },
+    { id: 'Jadwal', label: 'Jadwal' },
+    { id: 'Info', label: 'Info' }
+  ];
+
+  const filteredAnnouncements = announcements.filter(announcement => {
+    const matchesSearch = announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         announcement.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || announcement.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
       case 'penting':
@@ -71,8 +89,42 @@ const Pengumuman = () => {
 
       <div className="section-padding">
         <div className="container-custom max-w-4xl">
+          {/* Search and Filter */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Search */}
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari pengumuman..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Category Filter */}
+              <div className="md:w-48">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-6">
-            {announcements.map((announcement) => (
+            {filteredAnnouncements.map((announcement) => (
               <Card key={announcement.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
@@ -106,6 +158,30 @@ const Pengumuman = () => {
               </Card>
             ))}
           </div>
+
+          {/* No Results */}
+          {filteredAnnouncements.length === 0 && (
+            <div className="text-center py-12">
+              <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Tidak ada pengumuman ditemukan
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Coba ubah kata kunci atau kategori pencarian
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedCategory('all');
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Bersihkan Filter
+              </button>
+            </div>
+          )}
 
           {announcements.length === 0 && (
             <Card>
