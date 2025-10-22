@@ -14,6 +14,8 @@ const Register = lazy(() => import("./pages/Register"));
 const Informasi = lazy(() => import("./pages/Informasi"));
 const Pengumuman = lazy(() => import("./pages/Pengumuman"));
 const Kontak = lazy(() => import("./pages/Kontak"));
+const Faq = lazy(() => import("./pages/Faq"));
+
 
 // Dashboard Siswa
 const DashboardSiswa = lazy(() => import("./pages/siswa/Dashboard"));
@@ -49,6 +51,7 @@ const App = () => (
             <Route path="/informasi" element={<Informasi />} />
             <Route path="/pengumuman" element={<Pengumuman />} />
             <Route path="/kontak" element={<Kontak />} />
+            <Route path="/faq" element={<Faq />} />
 
             {/* Protected Routes - Siswa */}
             <Route

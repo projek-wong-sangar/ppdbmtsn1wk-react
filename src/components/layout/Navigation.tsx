@@ -16,6 +16,7 @@ const Navigation = () => {
     { name: 'Informasi', path: '/informasi' },
     { name: 'Pengumuman', path: '/pengumuman' },
     { name: 'Kontak', path: '/kontak' },
+    { name: 'FAQ', path: '/faq' },
   ];
 
   const handleLogout = () => {

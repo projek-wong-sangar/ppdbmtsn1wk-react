@@ -53,8 +53,13 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-primary-foreground font-bold text-2xl">M</span>
+          <div className="flex items-center justify-center gap-6 mb-4">
+            <div className="w-32 h-32 flex items-center justify-center">
+              <img src="https://lulusku.kemusukkidul.com/img/kemenag.png" alt="Logo KEMENAG" />
+            </div>
+            <div className="w-32 h-32 flex items-center justify-center">
+              <img src="https://mtsn1waykanan.com/img/mtsn1logo.png" alt="Logo MTsN 1 Way Kanan" />
+            </div>
           </div>
           <CardTitle className="text-2xl font-bold">Masuk ke Akun</CardTitle>
           <CardDescription>PPDB MTsN 1 Way Kanan 2025/2026</CardDescription>
