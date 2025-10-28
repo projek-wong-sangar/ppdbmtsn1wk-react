@@ -51,10 +51,10 @@ const Informasi = () => {
   ];
 
   const jadwal = [
-    { kegiatan: 'Pendaftaran Online', waktu: '1 - 31 Januari 2025' },
-    { kegiatan: 'Verifikasi Berkas', waktu: '1 - 15 Februari 2025' },
-    { kegiatan: 'Pengumuman Hasil Seleksi', waktu: '20 Februari 2025' },
-    { kegiatan: 'Daftar Ulang', waktu: '25 Februari - 5 Maret 2025' },
+    { kegiatan: 'Pendaftaran Online', waktu: '1 - 15 November 2024' },
+    { kegiatan: 'Verifikasi Berkas', waktu: '16 - 25 November 2024' },
+    { kegiatan: 'Pengumuman Hasil Seleksi', waktu: '27 November 2024' },
+    { kegiatan: 'Daftar Ulang', waktu: '28 - 30 November 2024' },
     { kegiatan: 'MPLS (Masa Pengenalan Lingkungan Sekolah)', waktu: '8 - 10 Juli 2025' },
   ];
 

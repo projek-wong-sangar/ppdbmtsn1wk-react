@@ -57,7 +57,7 @@ const Step3AsalSekolah = ({ data, onNext, onPrev }: Props) => {
         </div>
         <div>
           <Label htmlFor="no_ijazah">Nomor Ijazah *</Label>
-          <Input id="no_ijazah" {...register('no_ijazah')} />
+          <Input id="no_ijazah" {...register('no_ijazah')} placeholder="DN-01/D-SD/K13/24/0000007" />
           {errors.no_ijazah && <p className="text-sm text-destructive mt-1">{errors.no_ijazah.message}</p>}
         </div>
       </div>

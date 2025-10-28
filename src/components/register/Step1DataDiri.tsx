@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PendaftaranData } from '@/services/pendaftaranService';
 
 const schema = z.object({
-  nisn: z.string().min(10, 'NISN harus 10 digit').max(10, 'NISN harus 10 digit'),
-  nik: z.string().min(16, 'NIK harus 16 digit').max(16, 'NIK harus 16 digit'),
+  nisn: z.string().length(10, 'NISN harus 10 digit').regex(/^\d{10}$/, 'NISN harus berupa 10 digit angka'),
+  nik: z.string().length(16, 'NIK harus 16 digit').regex(/^\d{16}$/, 'NIK harus berupa 16 digit angka'),
   nama_lengkap: z.string().min(3, 'Nama minimal 3 karakter'),
-  tempat_lahir: z.string().min(2, 'Tempat lahir minimal 2 karakter'),
+  tempat_lahir: z.string().min(2, 'Tempat lahir minimal 2 karakter').regex(/^[a-zA-Z\s]+$/, 'Tempat lahir hanya boleh berisi huruf dan spasi'),
   tanggal_lahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
   jenis_kelamin: z.enum(['L', 'P'], { required_error: 'Jenis kelamin wajib dipilih' }),
   agama: z.string().min(1, 'Agama wajib dipilih'),
@@ -35,6 +35,21 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
 
   const onSubmit = (formData: FormData) => {
     onNext(formData);
+  };
+
+  // Handler untuk mencegah input negatif
+  const handleNumberInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+      e.preventDefault();
+    }
+  };
+
+  // Handler untuk mencegah paste nilai negatif
+  const handleNumberPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = e.clipboardData.getData('text');
+    if (pastedText.includes('-') || isNaN(Number(pastedText)) || Number(pastedText) < 0) {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -107,12 +122,26 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="anak_ke">Anak Ke- *</Label>
-          <Input id="anak_ke" type="number" {...register('anak_ke')} />
+          <Input 
+            id="anak_ke" 
+            type="number" 
+            min="1" 
+            onKeyDown={handleNumberInput}
+            onPaste={handleNumberPaste}
+            {...register('anak_ke')} 
+          />
           {errors.anak_ke && <p className="text-sm text-destructive mt-1">{errors.anak_ke.message}</p>}
         </div>
         <div>
           <Label htmlFor="jumlah_saudara">Jumlah Saudara *</Label>
-          <Input id="jumlah_saudara" type="number" {...register('jumlah_saudara')} />
+          <Input 
+            id="jumlah_saudara" 
+            type="number" 
+            min="0" 
+            onKeyDown={handleNumberInput}
+            onPaste={handleNumberPaste}
+            {...register('jumlah_saudara')} 
+          />
           {errors.jumlah_saudara && <p className="text-sm text-destructive mt-1">{errors.jumlah_saudara.message}</p>}
         </div>
       </div>

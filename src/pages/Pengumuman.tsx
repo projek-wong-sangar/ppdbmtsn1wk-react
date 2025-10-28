@@ -15,10 +15,10 @@ const Pengumuman = () => {
     {
       id: 1,
       title: 'Pembukaan PPDB Tahun Pelajaran 2025/2026',
-      date: '2025-01-01T08:00:00',
+      date: '2024-11-01T08:00:00',
       category: 'Penting',
       content:
-        'Pendaftaran Peserta Didik Baru (PPDB) MTsN 1 Way Kanan Tahun Pelajaran 2025/2026 dibuka mulai tanggal 1 Januari 2025. Calon siswa dapat mendaftar secara online melalui website ini. Kuota yang tersedia sebanyak 250 siswa.',
+        'Pendaftaran Peserta Didik Baru (PPDB) MTsN 1 Way Kanan Tahun Pelajaran 2025/2026 dibuka mulai tanggal 1 November 2024. Calon siswa dapat mendaftar secara online melalui website ini. Kuota yang tersedia sebanyak 250 siswa.',
     },
     {
       id: 2,

@@ -5,19 +5,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import WilayahDropdown from '@/components/ui/wilayah-dropdown-autocomplete';
 import { PendaftaranData } from '@/services/pendaftaranService';
+import { Provinsi, Kota, Kecamatan, Kelurahan } from '@/services/wilayahService';
 
 const schema = z.object({
   alamat: z.string().min(10, 'Alamat minimal 10 karakter'),
-  rt: z.string().min(1, 'RT wajib diisi'),
-  rw: z.string().min(1, 'RW wajib diisi'),
+  rt: z.string().min(1, 'RT wajib diisi').regex(/^\d{3}$/, 'RT harus berupa 3 digit angka'),
+  rw: z.string().min(1, 'RW wajib diisi').regex(/^\d{3}$/, 'RW harus berupa 3 digit angka'),
   desa: z.string().min(2, 'Desa/Kelurahan wajib diisi'),
   kecamatan: z.string().min(2, 'Kecamatan wajib diisi'),
   kabupaten: z.string().min(2, 'Kabupaten wajib diisi'),
   provinsi: z.string().min(2, 'Provinsi wajib diisi'),
-  kode_pos: z.string().min(5, 'Kode pos minimal 5 digit'),
-  no_hp: z.string().min(10, 'Nomor HP minimal 10 digit'),
+  kode_pos: z.string().min(5, 'Kode pos minimal 5 digit').regex(/^\d{5}$/, 'Kode pos harus berupa 5 digit angka'),
+  no_hp: z.string().min(10, 'Nomor HP minimal 10 digit').regex(/^\d{10}$/, 'Nomor HP harus berupa 10 digit angka'),
   email: z.string().email('Email tidak valid'),
+  // Wilayah IDs untuk referensi database
+  provinsi_id: z.number().optional(),
+  kota_id: z.number().optional(),
+  kecamatan_id: z.number().optional(),
+  kelurahan_id: z.number().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -29,10 +36,55 @@ interface Props {
 }
 
 const Step2Alamat = ({ data, onNext, onPrev }: Props) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: data as FormData,
   });
+
+  const handleProvinsiChange = (provinsi: Provinsi | null) => {
+    if (provinsi) {
+      setValue('provinsi', provinsi.nama);
+      setValue('provinsi_id', provinsi.id);
+    } else {
+      setValue('provinsi', '');
+      setValue('provinsi_id', undefined);
+    }
+  };
+
+  const handleKotaChange = (kota: Kota | null) => {
+    if (kota) {
+      setValue('kabupaten', kota.nama);
+      setValue('kota_id', kota.id);
+    } else {
+      setValue('kabupaten', '');
+      setValue('kota_id', undefined);
+    }
+  };
+
+  const handleKecamatanChange = (kecamatan: Kecamatan | null) => {
+    if (kecamatan) {
+      setValue('kecamatan', kecamatan.nama);
+      setValue('kecamatan_id', kecamatan.id);
+    } else {
+      setValue('kecamatan', '');
+      setValue('kecamatan_id', undefined);
+    }
+  };
+
+  const handleKelurahanChange = (kelurahan: Kelurahan | null) => {
+    if (kelurahan) {
+      setValue('desa', kelurahan.nama);
+      setValue('kelurahan_id', kelurahan.id);
+    } else {
+      setValue('desa', '');
+      setValue('kelurahan_id', undefined);
+    }
+  };
+
+  // Note: Kode pos auto-fill disabled as API endpoint not available
+  // const handleKodePosChange = (kodePos: string) => {
+  //   setValue('kode_pos', kodePos);
+  // };
 
   return (
     <form onSubmit={handleSubmit(onNext)} className="space-y-4">
@@ -55,31 +107,29 @@ const Step2Alamat = ({ data, onNext, onPrev }: Props) => {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="desa">Desa/Kelurahan *</Label>
-          <Input id="desa" {...register('desa')} />
-          {errors.desa && <p className="text-sm text-destructive mt-1">{errors.desa.message}</p>}
-        </div>
-        <div>
-          <Label htmlFor="kecamatan">Kecamatan *</Label>
-          <Input id="kecamatan" {...register('kecamatan')} />
-          {errors.kecamatan && <p className="text-sm text-destructive mt-1">{errors.kecamatan.message}</p>}
-        </div>
-      </div>
+      {/* Dropdown Wilayah */}
+      <WilayahDropdown
+        onProvinsiChange={handleProvinsiChange}
+        onKotaChange={handleKotaChange}
+        onKecamatanChange={handleKecamatanChange}
+        onKelurahanChange={handleKelurahanChange}
+        errorProvinsi={errors.provinsi?.message}
+        errorKota={errors.kabupaten?.message}
+        errorKecamatan={errors.kecamatan?.message}
+        errorKelurahan={errors.desa?.message}
+        // onKodePosChange={handleKodePosChange} // Disabled as API not available
+      />
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="kabupaten">Kabupaten *</Label>
-          <Input id="kabupaten" {...register('kabupaten')} />
-          {errors.kabupaten && <p className="text-sm text-destructive mt-1">{errors.kabupaten.message}</p>}
-        </div>
-        <div>
-          <Label htmlFor="provinsi">Provinsi *</Label>
-          <Input id="provinsi" {...register('provinsi')} />
-          {errors.provinsi && <p className="text-sm text-destructive mt-1">{errors.provinsi.message}</p>}
-        </div>
-      </div>
+      {/* Hidden inputs untuk validasi */}
+      <input type="hidden" {...register('provinsi')} />
+      <input type="hidden" {...register('kabupaten')} />
+      <input type="hidden" {...register('kecamatan')} />
+      <input type="hidden" {...register('desa')} />
+      <input type="hidden" {...register('provinsi_id')} />
+      <input type="hidden" {...register('kota_id')} />
+      <input type="hidden" {...register('kecamatan_id')} />
+      <input type="hidden" {...register('kelurahan_id')} />
+
 
       <div>
         <Label htmlFor="kode_pos">Kode Pos *</Label>

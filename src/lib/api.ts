@@ -1,9 +1,18 @@
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const WILAYAH_API_URL = import.meta.env.VITE_WILAYAH_API_URL || 'http://103.150.93.71:4006/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// API khusus untuk wilayah
+export const wilayahApi = axios.create({
+  baseURL: WILAYAH_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

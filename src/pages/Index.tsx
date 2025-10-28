@@ -14,10 +14,10 @@ const Index = () => {
   ];
 
   const timeline = [
-    { phase: 'Pendaftaran', date: '1 - 31 Januari 2025', status: 'active' },
-    { phase: 'Seleksi Administrasi', date: '1 - 15 Februari 2025', status: 'upcoming' },
-    { phase: 'Pengumuman', date: '20 Februari 2025', status: 'upcoming' },
-    { phase: 'Daftar Ulang', date: '25 Feb - 5 Maret 2025', status: 'upcoming' },
+    { phase: 'Pendaftaran', date: '1 - 15 November 2024', status: 'active' },
+    { phase: 'Seleksi Administrasi', date: '16 - 25 November 2024', status: 'upcoming' },
+    { phase: 'Pengumuman', date: '27 November 2024', status: 'upcoming' },
+    { phase: 'Daftar Ulang', date: '28 - 30 November 2024', status: 'upcoming' },
   ];
 
   const features = [

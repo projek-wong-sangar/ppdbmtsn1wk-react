@@ -157,7 +157,7 @@ const Kontak = () => {
                     Kapan batas akhir pendaftaran?
                   </h3>
                   <p className="text-foreground">
-                    Pendaftaran ditutup pada tanggal 31 Januari 2025 pukul 23:59 WIB.
+                    Pendaftaran ditutup pada tanggal 15 November 2024 pukul 23:59 WIB.
                   </p>
                 </CardContent>
               </Card>

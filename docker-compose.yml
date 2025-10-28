@@ -1,10 +1,16 @@
 services:
   ppdbmtsn1wk-react:
+    container_name: ppdbmtsn1wk-react
+    image: ppdbmtsn1wk-react:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ppdbmtsn1wk-react
-    image: ppdbmtsn1wk-react:latest
     ports:
-      - "3007:80"
+      - "3007:3007"
     restart: always
+    networks:
+      - ppdbmtsn1wk-net
+
+nets:
+  ppdbmtsn1wk-net:
+    external: true
