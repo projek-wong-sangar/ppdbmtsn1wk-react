@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4006/api';
-const WILAYAH_API_URL = import.meta.env.VITE_WILAYAH_API_URL || 'http://103.150.93.71:4006/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+const WILAYAH_API_URL = import.meta.env.VITE_WILAYAH_API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error('Missing environment variable: VITE_API_URL');
+}
+
+if (!WILAYAH_API_URL) {
+  throw new Error('Missing environment variable: VITE_WILAYAH_API_URL');
+}
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

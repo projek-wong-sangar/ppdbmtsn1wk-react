@@ -26,8 +26,10 @@ interface DashboardSiswaProps {
   authToken?: string;
 }
 
-const DEFAULT_API_BASE =
-  (import.meta as any).env?.VITE_API_URL || 'http://localhost:4006';
+const DEFAULT_API_BASE = import.meta.env.VITE_API_URL;
+if (!DEFAULT_API_BASE) {
+  throw new Error('Missing environment variable: VITE_API_URL');
+}
 
 const MONTHS_ID = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
