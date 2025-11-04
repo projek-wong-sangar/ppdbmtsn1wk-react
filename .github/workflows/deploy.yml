@@ -23,6 +23,9 @@ jobs:
           npm install
 
       - name: Build project
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WILAYAH_API_URL: ${{ secrets.VITE_WILAYAH_API_URL }}
         run: npm run build
           
       - name: Clean old project folder on VPS
@@ -40,7 +43,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist,Dockerfile,docker-compose.yml, nginx.conf"
+          source: "dist,Dockerfile,docker-compose.yml,nginx.conf"
           target: "~/ppdbmtsn1wk-react"
         
       - name: Deploy via SSH
