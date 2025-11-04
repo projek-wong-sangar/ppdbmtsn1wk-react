@@ -44,3 +44,19 @@ export const pendaftaranStorage = {
     return Object.keys(data).length > 0;
   }
 };
+
+// Utilitas untuk menyimpan draft pendaftaran per step di localStorage
+export function saveDraftStep(step: number, data: any) {
+  localStorage.setItem(`ppdb-draft-step${step}`, JSON.stringify(data));
+}
+
+export function loadDraftStep(step: number) {
+  const data = localStorage.getItem(`ppdb-draft-step${step}`);
+  return data ? JSON.parse(data) : null;
+}
+
+export function clearAllDrafts() {
+  for (let i = 1; i <= 6; i++) {
+    localStorage.removeItem(`ppdb-draft-step${i}`);
+  }
+}

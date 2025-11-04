@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4006/api';
 const WILAYAH_API_URL = import.meta.env.VITE_WILAYAH_API_URL || 'http://103.150.93.71:4006/api';
 
 export const api = axios.create({
@@ -9,7 +9,6 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
 // API khusus untuk wilayah
 export const wilayahApi = axios.create({
   baseURL: WILAYAH_API_URL,
@@ -18,7 +17,7 @@ export const wilayahApi = axios.create({
   },
 });
 
-// Request interceptor untuk menambahkan token JWT
+// JWT interceptor untuk api utama
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -27,12 +26,10 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor untuk handle errors
+// Response error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -44,5 +41,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-export default api;

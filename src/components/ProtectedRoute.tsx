@@ -1,28 +1,37 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { authService } from '@/services/authService';
 
+type Role = 'siswa' | 'admin';
+
 interface ProtectedRouteProps {
-  children: React.ReactNode;
-  adminOnly?: boolean;
+  allowedRoles?: Role[];
 }
 
-const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+  const location = useLocation();
   const isAuth = authService.isAuthenticated();
-  
+
   if (!isAuth) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (adminOnly) {
+  if (allowedRoles && allowedRoles.length > 0) {
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
-    
-    if (user?.role !== 'admin') {
-      return <Navigate to="/dashboard" replace />;
+    const role: Role | undefined = user?.role;
+
+    if (!role || !allowedRoles.includes(role)) {
+      const redirectPath =
+        role === 'admin'
+          ? '/admin/dashboard'
+          : role === 'siswa'
+          ? '/siswa/dashboard'
+          : '/';
+      return <Navigate to={redirectPath} replace />;
     }
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

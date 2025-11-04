@@ -65,7 +65,7 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-2">
             {isAuth ? (
               <>
-                <Link to={user?.role === 'admin' ? '/admin' : '/dashboard'}>
+                <Link to={user?.role === 'admin' ? '/admin/dashboard' : '/siswa/dashboard'}>
                   <Button variant="ghost" size="sm" className="gap-2">
                     <User className="w-4 h-4" />
                     {user?.nama || 'Dashboard'}
@@ -122,7 +122,7 @@ const Navigation = () => {
               {isAuth ? (
                 <>
                   <Link
-                    to={user?.role === 'admin' ? '/admin' : '/dashboard'}
+                    to={user?.role === 'admin' ? '/admin/dashboard' : '/siswa/dashboard'}
                     onClick={() => setIsOpen(false)}
                   >
                     <Button variant="ghost" size="sm" className="w-full justify-start gap-2">

@@ -6,14 +6,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PendaftaranData } from '@/services/pendaftaranService';
+import { pendaftaranStorage } from '@/utils/pendaftaranStorage';
+import * as React from 'react';
+import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
 
 const schema = z.object({
   asal_sekolah: z.string().min(5, 'Nama sekolah minimal 5 karakter'),
   npsn_sekolah: z.string().min(8, 'NPSN minimal 8 digit'),
   alamat_sekolah: z.string().min(10, 'Alamat sekolah minimal 10 karakter'),
-  tahun_lulus: z.string().min(4, 'Tahun lulus wajib diisi'),
+  tahun_lulus: z.string().max(4, 'Kode pos maksimal 4 digit').regex(/^\d{4}$/, 'Tahun Lulus harus berupa 4 digit angka'),
   no_ijazah: z.string().min(5, 'Nomor ijazah wajib diisi'),
 });
+
+// Schema sementara dengan semua field optional untuk development
+// const schema = z.object({
+//   asal_sekolah: z.string().optional(),
+//   npsn_sekolah: z.string().optional(),
+//   alamat_sekolah: z.string().optional(),
+//   tahun_lulus: z.string().optional(),
+//   no_ijazah: z.string().optional(),
+// });
 
 type FormData = z.infer<typeof schema>;
 
@@ -24,13 +36,31 @@ interface Props {
 }
 
 const Step3AsalSekolah = ({ data, onNext, onPrev }: Props) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: data as FormData,
   });
 
+  React.useEffect(() => {
+    const draft = loadDraftStep(3);
+    if (draft) reset(draft);
+  }, [reset]);
+
+  React.useEffect(() => {
+    const subscription = watch((values) => {
+      saveDraftStep(3, values);
+      pendaftaranStorage.saveData(values);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  const onSubmit = (formData: FormData) => {
+    saveDraftStep(3, formData);
+    onNext(formData as Partial<PendaftaranData>);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onNext)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <Label htmlFor="asal_sekolah">Nama Sekolah SD/MI *</Label>
         <Input id="asal_sekolah" {...register('asal_sekolah')} placeholder="SDN 1 Way Kanan" />

@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import { api } from '@/lib/api';
 
 export interface LoginData {
   email: string;
@@ -19,49 +19,33 @@ export interface User {
   role: 'siswa' | 'admin';
 }
 
-// Mock authentication - nanti akan diganti dengan real API Go + JWT
 export const authService = {
   async login(data: LoginData): Promise<{ token: string; user: User }> {
-    // Mock delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Mock response
-    const mockToken = 'mock-jwt-token-' + Date.now();
-    const mockUser: User = {
-      id: '1',
-      email: data.email,
-      nama: 'User Mock',
-      role: data.email.includes('admin') ? 'admin' : 'siswa',
-    };
-    
-    // Simpan ke localStorage
-    localStorage.setItem('token', mockToken);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    return { token: mockToken, user: mockUser };
-    
-    // Real implementation nanti:
-    // const response = await api.post('/auth/login', data);
-    // return response.data;
+    const response = await api.post('/auth/login', data);
+    const { token, nama, email, role } = response.data;
+    const normalizedEmail = email || data.email; // ensure email is present
+    const user: User = { id: '', nama, email: normalizedEmail, role };
+    // Add id if provided
+    if (response.data.id) user.id = response.data.id;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    return { token, user };
   },
 
   async register(data: RegisterData): Promise<{ message: string }> {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    return { message: 'Registrasi berhasil! Silakan login.' };
-    
-    // Real implementation:
+    // Fallback, BE belum ada endpoint
+    return { message: 'Registrasi belum tersedia di backend.' };
+    // Jika sudah ada, aktifkan berikut:
     // const response = await api.post('/auth/register', data);
     // return response.data;
   },
 
   async getMe(): Promise<User> {
+    // Fallback localStorage, BE belum ada endpoint getMe
     const userStr = localStorage.getItem('user');
     if (!userStr) throw new Error('Not authenticated');
-    
     return JSON.parse(userStr);
-    
-    // Real implementation:
+    // Jika sudah ada:
     // const response = await api.get('/auth/me');
     // return response.data;
   },

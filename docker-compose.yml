@@ -11,6 +11,6 @@ services:
     networks:
       - ppdbmtsn1wk-net
 
-nets:
+networks:
   ppdbmtsn1wk-net:
     external: true

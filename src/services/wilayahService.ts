@@ -117,15 +117,4 @@ export const wilayahService = {
       throw error;
     }
   }
-
-  // Note: getKodePos endpoint not available in current API
-  // async getKodePos(kelurahanId: number): Promise<{ kode_pos: string }> {
-  //   try {
-  //     const response = await wilayahApi.get(`/wilayah/kode-pos?kelurahan_id=${kelurahanId}`);
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error('Error fetching kode pos:', error);
-  //     throw error;
-  //   }
-  // }
 };

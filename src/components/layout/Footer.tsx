@@ -47,32 +47,44 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-4">Link Cepat</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/" className="hover:underline opacity-90 hover:opacity-100">
+                <Link to="/" 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="hover:underline opacity-90 hover:opacity-100">
                   Beranda
                 </Link>
               </li>
               <li>
-                <Link to="/informasi" className="hover:underline opacity-90 hover:opacity-100">
+                <Link to="/informasi" 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="hover:underline opacity-90 hover:opacity-100">
                   Informasi PPDB
                 </Link>
               </li>
               <li>
-                <Link to="/pengumuman" className="hover:underline opacity-90 hover:opacity-100">
+                <Link to="/pengumuman"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+                className="hover:underline opacity-90 hover:opacity-100">
                   Pengumuman
                 </Link>
               </li>
               <li>
-                <Link to="/kontak" className="hover:underline opacity-90 hover:opacity-100">
+                <Link to="/kontak"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+                className="hover:underline opacity-90 hover:opacity-100">
                   Kontak
                 </Link>
               </li>
               <li>
-                <Link to="/register" className="hover:underline opacity-90 hover:opacity-100">
+                <Link to="/register" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="hover:underline opacity-90 hover:opacity-100">
                   Daftar Sekarang
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="hover:underline opacity-90 hover:opacity-100">
+                <Link to="/faq" 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="hover:underline opacity-90 hover:opacity-100">
                   FAQ
                 </Link>
               </li>

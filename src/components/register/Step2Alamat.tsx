@@ -8,7 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import WilayahDropdown from '@/components/ui/wilayah-dropdown-autocomplete';
 import { PendaftaranData } from '@/services/pendaftaranService';
 import { Provinsi, Kota, Kecamatan, Kelurahan } from '@/services/wilayahService';
+import { pendaftaranStorage } from '@/utils/pendaftaranStorage';
+import * as React from 'react';
+import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
+import { cekService } from '@/services/cekService';
 
+// Validasi Zod yang lama - dikomentari untuk development
 const schema = z.object({
   alamat: z.string().min(10, 'Alamat minimal 10 karakter'),
   rt: z.string().min(1, 'RT wajib diisi').regex(/^\d{3}$/, 'RT harus berupa 3 digit angka'),
@@ -27,6 +32,24 @@ const schema = z.object({
   kelurahan_id: z.number().optional(),
 });
 
+// Schema sementara dengan semua field optional untuk development
+// const schema = z.object({
+//   alamat: z.string().optional(),
+//   rt: z.string().optional(),
+//   rw: z.string().optional(),
+//   desa: z.string().optional(),
+//   kecamatan: z.string().optional(),
+//   kabupaten: z.string().optional(),
+//   provinsi: z.string().optional(),
+//   kode_pos: z.string().optional(),
+//   no_hp: z.string().optional(),
+//   email: z.string().optional(),
+//   provinsi_id: z.number().optional(),
+//   kota_id: z.number().optional(),
+//   kecamatan_id: z.number().optional(),
+//   kelurahan_id: z.number().optional(),
+// });
+
 type FormData = z.infer<typeof schema>;
 
 interface Props {
@@ -36,10 +59,23 @@ interface Props {
 }
 
 const Step2Alamat = ({ data, onNext, onPrev }: Props) => {
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, setError, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: data as FormData,
   });
+
+  React.useEffect(() => {
+    const draft = loadDraftStep(2);
+    if (draft) reset(draft);
+  }, [reset]);
+
+  React.useEffect(() => {
+    const subscription = watch((values) => {
+      saveDraftStep(2, values);
+      pendaftaranStorage.saveData(values);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   const handleProvinsiChange = (provinsi: Provinsi | null) => {
     if (provinsi) {
@@ -86,8 +122,25 @@ const Step2Alamat = ({ data, onNext, onPrev }: Props) => {
   //   setValue('kode_pos', kodePos);
   // };
 
+  const onSubmit = async (formData: FormData) => {
+    saveDraftStep(2, formData);
+    pendaftaranStorage.saveData(formData);
+
+    // Pastikan email diisi
+    if (!formData.email) {
+      setError('email', { type: 'manual', message: 'Email wajib diisi' });
+      return;
+    }
+    // Cek unik ke backend
+    if (await cekService.cekEmail(formData.email)) {
+      setError('email', { type: 'manual', message: 'Email sudah terdaftar' });
+      return;
+    }
+    onNext(formData as Partial<PendaftaranData>);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onNext)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <Label htmlFor="alamat">Alamat Lengkap *</Label>
         <Textarea id="alamat" {...register('alamat')} rows={3} />

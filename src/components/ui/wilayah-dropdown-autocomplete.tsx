@@ -89,7 +89,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
 
   // Search provinsi when user types
   useEffect(() => {
-    if (debouncedProvinsiValue.length >= 2) {
+    if (debouncedProvinsiValue.length >= 8) {
       searchProvinsi(debouncedProvinsiValue);
     } else if (debouncedProvinsiValue.length === 0) {
       loadProvinsi();
@@ -98,7 +98,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
 
   // Search kota when user types
   useEffect(() => {
-    if (debouncedKotaValue.length >= 2 && selectedProvinsiId) {
+    if (debouncedKotaValue.length >= 8 && selectedProvinsiId) {
       searchKota(debouncedKotaValue, selectedProvinsiId);
     } else if (debouncedKotaValue.length === 0 && selectedProvinsiId) {
       loadKota(selectedProvinsiId);
@@ -107,7 +107,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
 
   // Search kecamatan when user types
   useEffect(() => {
-    if (debouncedKecamatanValue.length >= 2 && selectedKotaId) {
+    if (debouncedKecamatanValue.length >= 8 && selectedKotaId) {
       searchKecamatan(debouncedKecamatanValue, selectedKotaId);
     } else if (debouncedKecamatanValue.length === 0 && selectedKotaId) {
       loadKecamatan(selectedKotaId);
@@ -116,7 +116,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
 
   // Search kelurahan when user types
   useEffect(() => {
-    if (debouncedKelurahanValue.length >= 2 && selectedKecamatanId) {
+    if (debouncedKelurahanValue.length >= 8 && selectedKecamatanId) {
       searchKelurahan(debouncedKelurahanValue, selectedKecamatanId);
     } else if (debouncedKelurahanValue.length === 0 && selectedKecamatanId) {
       loadKelurahan(selectedKecamatanId);
@@ -351,7 +351,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
     <div className="space-y-4">
       {/* Provinsi */}
       <AutocompleteDropdown
-        label="Provinsi"
+        label="Provinsi *"
         placeholder="Ketik nama provinsi..."
         options={provinsiList}
         value={provinsiValue}
@@ -364,7 +364,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
 
       {/* Kota/Kabupaten */}
       <AutocompleteDropdown
-        label="Kota/Kabupaten"
+        label="Kota/Kabupaten *"
         placeholder="Ketik nama kota/kabupaten..."
         options={kotaList}
         value={kotaValue}
@@ -377,7 +377,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
 
       {/* Kecamatan */}
       <AutocompleteDropdown
-        label="Kecamatan"
+        label="Kecamatan *"
         placeholder="Ketik nama kecamatan..."
         options={kecamatanList}
         value={kecamatanValue}
@@ -390,7 +390,7 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
 
       {/* Kelurahan/Desa */}
       <AutocompleteDropdown
-        label="Kelurahan/Desa"
+        label="Kelurahan/Desa *"
         placeholder="Ketik nama kelurahan/desa..."
         options={kelurahanList}
         value={kelurahanValue}

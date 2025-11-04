@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import { api } from '@/lib/api';
 
 export interface PendaftaranData {
   // Step 1: Data Diri
@@ -72,49 +72,33 @@ export interface StatusPendaftaran {
   keterangan?: string;
 }
 
-// Mock service - nanti akan diganti dengan real API
 export const pendaftaranService = {
   async submitPendaftaran(data: PendaftaranData): Promise<{ message: string; no_pendaftaran: string }> {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    
-    const noPendaftaran = 'PPDB' + Date.now();
-    
-    return {
-      message: 'Pendaftaran berhasil disimpan!',
-      no_pendaftaran: noPendaftaran,
-    };
-    
-    // Real implementation:
-    // const response = await api.post('/siswa/pendaftaran', data);
-    // return response.data;
+    const response = await api.post('/siswa/pendaftaran', data);
+    return response.data;
   },
 
   async getStatus(): Promise<StatusPendaftaran> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    
+    // Fallback jika BE blm ada endpoint /siswa/status
     return {
-      id: '1',
-      no_pendaftaran: 'PPDB2024001',
-      nama: 'Ahmad Siswa',
+      id: '-',
+      no_pendaftaran: '-',
+      nama: '-',
       status: 'pending',
       tanggal_daftar: new Date().toISOString(),
-      keterangan: 'Berkas sedang dalam proses verifikasi',
+      keterangan: 'Fitur status belum tersedia - tunggu backend.'
     };
-    
-    // Real implementation:
+    // Jika sudah ada:
     // const response = await api.get('/siswa/status');
     // return response.data;
   },
 
   async uploadFile(file: File, type: string): Promise<{ url: string }> {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // Mock URL
+    // Fallback - backend blm ada endpoint upload
     return {
       url: `https://mock-storage.com/${type}/${file.name}`,
     };
-    
-    // Real implementation:
+    // Jika sudah ada:
     // const formData = new FormData();
     // formData.append('file', file);
     // formData.append('type', type);
