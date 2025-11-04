@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3007:3007"
+      - "3007:80"
     restart: always
     networks:
       - ppdbmtsn1wk-net
