@@ -40,7 +40,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist,Dockerfile,docker-compose.yml"
+          source: "dist,Dockerfile,docker-compose.yml, nginx.conf"
           target: "~/ppdbmtsn1wk-react"
         
       - name: Deploy via SSH
