@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
-import { StatusPendaftaran } from './pendaftaranService';
+// import { StatusPendaftaran } from './pendaftaranService';
+import { AdminCreateRequest, AdminUserResponse } from '@/models/admin';
 
 export interface AdminPendaftarSummary {
   no_pendaftaran: string;
@@ -124,7 +125,7 @@ export const adminService = {
     return response.data as PendaftarDetail;
   },
 
-  async starReviewPendaftar(id: string): Promise<ReviewPendaftar> {
+  async startReviewPendaftar(id: string): Promise<ReviewPendaftar> {
     const response = await api.post(`/admin/start-review/${id}`);
     return response.data as ReviewPendaftar;
   },
@@ -138,4 +139,51 @@ export const adminService = {
     const response = await api.post(`/admin/cancel-review/${id}`);
     return response.data;
   },
-};
+
+  // --- FUNGSI BARU DIMASUKKAN KE DALAM OBJEK ---
+
+  /**
+   * Mengambil daftar semua admin dan superadmin.
+   * (GET /api/admin/users)
+   */
+  async listAdmins(): Promise<AdminUserResponse[]> {
+    try {
+      const response = await api.get('/admin/users');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch admins:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Membuat admin baru.
+   * (POST /api/admin/users)
+   */
+  async createAdmin(data: AdminCreateRequest): Promise<any> {
+    try {
+      const response = await api.post('/admin/users', data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create admin:', error);
+      // Lempar error agar form bisa menangkapnya (misal 409 conflict)
+      throw error;
+    }
+  },
+
+  /**
+   * Menghapus admin berdasarkan ID.
+   * (DELETE /api/admin/users/:id)
+   */
+  async deleteAdmin(userId: string): Promise<any> {
+    try {
+      const response = await api.delete(`/admin/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to delete admin:', error);
+      throw error;
+    }
+  },
+  // --- AKHIR FUNGSI BARU ---
+  
+}; // <-- Tanda '};' penutup dipindah ke sini

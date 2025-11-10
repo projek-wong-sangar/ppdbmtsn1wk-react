@@ -18,14 +18,12 @@ const Step6Verifikasi = ({ data, onPrev, onSubmitSuccess }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [allData, setAllData] = useState<Partial<PendaftaranData>>({});
 
-  // Load data dari localStorage saat komponen mount
   useEffect(() => {
     const storedData = pendaftaranStorage.getData();
     setAllData(storedData);
   }, []);
 
   const handleSubmit = async (e?: React.SyntheticEvent) => {
-    // Prevent native form submit/navigation if this button lives inside a <form>
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -37,10 +35,8 @@ const Step6Verifikasi = ({ data, onPrev, onSubmitSuccess }: Props) => {
 
     setIsLoading(true);
     try {
-      // Kirim seluruh data + file ke server di sini
       const result = await pendaftaranService.submitPendaftaran(allData as PendaftaranData);
       toast.success(result.message);
-      // Hapus semua draft setelah submit
       clearAllDrafts();
       onSubmitSuccess(result.no_pendaftaran);
     } catch (error) {
@@ -55,7 +51,6 @@ const Step6Verifikasi = ({ data, onPrev, onSubmitSuccess }: Props) => {
       <div className="space-y-4">
         <h3 className="font-bold text-lg">Ringkasan Data</h3>
         
-        {/* Data Pribadi */}
         <Card>
           <CardContent className="p-4">
             <h4 className="font-semibold mb-3 text-primary">Data Pribadi</h4>
@@ -88,7 +83,6 @@ const Step6Verifikasi = ({ data, onPrev, onSubmitSuccess }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Data Alamat */}
         <Card>
           <CardContent className="p-4">
             <h4 className="font-semibold mb-3 text-primary">Data Alamat</h4>
@@ -133,7 +127,6 @@ const Step6Verifikasi = ({ data, onPrev, onSubmitSuccess }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Data Sekolah */}
         <Card>
           <CardContent className="p-4">
             <h4 className="font-semibold mb-3 text-primary">Data Asal Sekolah</h4>
@@ -158,7 +151,6 @@ const Step6Verifikasi = ({ data, onPrev, onSubmitSuccess }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Data Orang Tua */}
         <Card>
           <CardContent className="p-4">
             <h4 className="font-semibold mb-3 text-primary">Data Orang Tua</h4>

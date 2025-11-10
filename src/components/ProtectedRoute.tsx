@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { authService } from '@/services/authService';
 
-type Role = 'siswa' | 'admin';
+type Role = 'siswa' | 'admin' | 'superadmin';
 
 interface ProtectedRouteProps {
   allowedRoles?: Role[];
@@ -22,7 +22,7 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
     if (!role || !allowedRoles.includes(role)) {
       const redirectPath =
-        role === 'admin'
+        (role === 'admin' || role === 'superadmin')
           ? '/admin/dashboard'
           : role === 'siswa'
           ? '/siswa/dashboard'

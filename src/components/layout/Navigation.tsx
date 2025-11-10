@@ -1,8 +1,19 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut, ShieldUser, UserCog, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { authService } from '@/services/authService';
+
+// 1. Impor komponen NavigationMenu
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { ListItem } from "@/components/ui/list-item";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,6 +36,25 @@ const Navigation = () => {
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  const RoleIcon = () => {
+    const role = user?.role;
+    const className = "w-4 h-4"; 
+
+    if (role === 'superadmin') {
+      return <ShieldUser className={className} />;
+    }
+    if (role === 'admin') {
+      return <UserCog className={className} />;
+    }
+    return <User className={className} />;
+  };
+
+  const dashboardPath = (user?.role === 'admin' || user?.role === 'superadmin')
+    ? '/admin/dashboard'
+    : '/siswa/dashboard';
+  
+  const manageAdminPath = "/superadmin/admin"; 
 
   return (
     <nav className="bg-background border-b border-border sticky top-0 z-50 shadow-sm">
@@ -65,19 +95,44 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-2">
             {isAuth ? (
               <>
-                <Link to={user?.role === 'admin' ? '/admin/dashboard' : '/siswa/dashboard'}>
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <User className="w-4 h-4" />
-                    {user?.nama || 'Dashboard'}
-                  </Button>
-                </Link>
-                <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
-                  <LogOut className="w-4 h-4" />
-                  Keluar
-                </Button>
+                {/* --- 3. INI ADALAH NAVIGATIONMENU BARU (DESKTOP) --- */}
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      {/* Ini adalah pemicu yang di-hover */}
+                      <NavigationMenuTrigger className="gap-2 bg-transparent hover:bg-accent focus:bg-accent text-sm font-medium h-10 px-4 py-2">
+                        <RoleIcon />
+                        {user?.nama || 'Menu'}
+                      </NavigationMenuTrigger>
+                      {/* Ini adalah konten yang muncul saat di-hover */}
+                      <NavigationMenuContent>
+                        <ul className="grid w-[200px] gap-3 p-4">
+                          <ListItem to={dashboardPath} title="Dashboard">
+                            <LayoutDashboard className="h-4 w-4" />
+                          </ListItem>
+
+                          {/* Tampilkan link ini HANYA jika superadmin */}
+                          {user?.role === 'superadmin' && (
+                            <ListItem to={manageAdminPath} title="Manage Admin">
+                              <UserCog className="h-4 w-4" />
+                            </ListItem>
+                          )}
+                          
+                          {/* Garis pemisah */}
+                          <li className="h-px w-full bg-border my-1"></li>
+
+                          <ListItem onClick={handleLogout} title="Keluar" className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                            <LogOut className="h-4 w-4" />
+                          </ListItem>
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
               </>
             ) : (
               <>
+                {/* ... (Tombol Login/Register tidak berubah) ... */}
                 <Link to="/login">
                   <Button variant="outline" size="sm">
                     Masuk
@@ -101,7 +156,7 @@ const Navigation = () => {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu (Tidak berubah, ini sudah benar menggunakan klik) */}
         {isOpen && (
           <div className="md:hidden py-4 space-y-2 border-t border-border">
             {publicLinks.map((link) => (
@@ -122,14 +177,25 @@ const Navigation = () => {
               {isAuth ? (
                 <>
                   <Link
-                    to={user?.role === 'admin' ? '/admin/dashboard' : '/siswa/dashboard'}
+                    to={dashboardPath}
                     onClick={() => setIsOpen(false)}
                   >
                     <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
-                      <User className="w-4 h-4" />
+                      <RoleIcon />
                       {user?.nama || 'Dashboard'}
                     </Button>
                   </Link>
+                  {user?.role === 'superadmin' && (
+                    <Link
+                      to={manageAdminPath}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+                        <UserCog className="w-4 h-4" />
+                        <span>Manage Admin</span>
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"

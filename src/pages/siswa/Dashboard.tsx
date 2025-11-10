@@ -145,7 +145,7 @@ const DashboardSiswa = ({
       if (token) headers.Authorization = `Bearer ${token}`;
 
       const result = await fetchJSON<SiswaStatus>(
-        `${apiBaseUrl}/api/siswa/status`,
+        `${apiBaseUrl}/siswa/status`,
         {
           method: 'POST', // ShouldBindJSON di server → POST
           headers,

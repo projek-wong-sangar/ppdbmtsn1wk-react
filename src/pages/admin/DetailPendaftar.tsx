@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useBlocker as useBlocker } from 'react-router-dom';
 import { adminService, PendaftarDetail, ReviewPendaftar } from '@/services/adminService';
 import { ArrowLeft, Loader2, UserCheck, UserX, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,52 +19,134 @@ const DetailPendaftarAdmin = () => {
   const [error, setError] = useState('');
   const [data, setData] = useState<PendaftarDetail | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
-  const [reviewStatus, setReviewStatus] = useState<ReviewPendaftar | null>(null);
+  const [reviewStatus, setReviewPendaftar] = useState<ReviewPendaftar | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [showVerifikasiDialog, setShowVerifikasiDialog] = useState(false);
   const [showTolakDialog, setShowTolakDialog] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [keterangan, setKeterangan] = useState('');
   const [actionType, setActionType] = useState<'verified' | 'rejected' | null>(null);
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
-  // Load review mode saat masuk, dan juga data detail
+  const shouldBlock = data && data.status !== 'verified' && data.status !== 'rejected' && isReviewing && !isReadOnly;
+  const blocker = useBlocker(shouldBlock);
+
+  useEffect(() => {
+    if (blocker && blocker.state === 'blocked') {
+      setShowCancelDialog(true);
+    }
+  }, [blocker]);
+
   useEffect(() => {
     if (!id) {
       setError('ID pendaftar tidak ditemukan');
       setLoading(false);
       return;
     }
+
+    let isMounted = true;
+    let reviewStarted = false; 
+    let readOnlyToastId: string | number | undefined = undefined;
+
     (async () => {
       try {
         setLoading(true);
         setError('');
         setIsReviewing(false);
-        // Call starReviewPendaftar sebelum getPendaftarDetail
-        const review = await adminService.starReviewPendaftar(id);
-        setReviewStatus(review);
-        setIsReviewing(true);
+        setIsReadOnly(false); 
+
+        try {
+          const review = await adminService.startReviewPendaftar(id);
+          reviewStarted = true;
+          if (isMounted) {
+            setReviewPendaftar(review);
+            setIsReviewing(true);
+          }
+        } catch (e: any) {
+          if (e?.response?.status === 409) {
+            if (isMounted) {
+              setIsReadOnly(true); 
+              
+              readOnlyToastId = toast.warning('Sedang direview admin lain', {
+                description: 'Anda hanya dapat melihat data (read-only).',
+                duration: Infinity,
+              });
+            }
+          } else {
+            throw e; 
+          }
+        }
+        
         const result = await adminService.getPendaftarDetail(id);
-        setData(result);
-      } catch (e: any) {
-        setError(e?.response?.data?.error || e?.message || 'Gagal memuat detail pendaftar');
+        if (isMounted) {
+          setData(result);
+        }
+
+      } catch (e: any) { 
+        if (isMounted) {
+          setError(e?.response?.data?.error || e?.message || 'Gagal memuat detail pendaftar');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     })();
+
+    return () => {
+      isMounted = false;
+      
+      if (readOnlyToastId) {
+        toast.dismiss(readOnlyToastId);
+      }
+
+      if (reviewStarted && id) {
+        console.log('Cleanup: Canceling review...');
+        adminService.cancelReviewPendaftar(id)
+          .catch(err => console.error('Error in cleanup cancelReview:', err));
+      }
+    };
   }, [id]);
 
-  // Tombol kembali: intercept sebelum navigate jika status !== verified/rejected
-  const handleBack = async () => {
-    if (!data || data.status === 'verified' || data.status === 'rejected') {
-      navigate('/admin/dashboard');
-      return;
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (shouldBlock) {
+        event.preventDefault();
+        event.returnValue = '';
+        return '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [shouldBlock]);
+
+  const handleBack = () => {
+    navigate('/admin/dashboard');
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!id) return;
+    
+    setShowCancelDialog(false);
+    
+    try {
+      await adminService.cancelReviewPendaftar(id);
+      toast.info('Review dibatalkan');
+    } catch (e: any) {
+      toast.error('Gagal membatalkan review');
+    } finally {
+      if (blocker) {
+        blocker.proceed();
+      }
     }
-    const konfirmasi = window.confirm('Anda belum melakukan verifikasi/tolak pada pendaftar ini. Keluar dari halaman detail akan membatalkan review Anda. Lanjutkan?');
-    if (konfirmasi && id) {
-      try {
-        await adminService.cancelReviewPendaftar(id);
-        // Optionally fetch latest dashboard data here
-      } catch {}
-      navigate('/admin/dashboard');
+  };
+
+  const handleStayOnPage = () => {
+    setShowCancelDialog(false);
+    if (blocker) {
+      blocker.reset();
     }
   };
 
@@ -90,12 +172,8 @@ const DetailPendaftarAdmin = () => {
   const handleSubmitVerifikasi = async () => {
     if (!id || !data || !actionType) return;
     
-    // Validasi: jika tolak, keterangan wajib
     if (actionType === 'rejected' && !keterangan.trim()) {
-      toast.error('Keterangan wajib diisi', {
-        description: 'Alasan penolakan harus diisi untuk keperluan audit dan informasi kepada pendaftar.',
-        duration: 4000,
-      });
+      toast.error('Keterangan wajib diisi');
       return;
     }
 
@@ -106,34 +184,20 @@ const DetailPendaftarAdmin = () => {
         actionType, 
         keterangan.trim() || undefined
       );
-      // Refresh data
+      
+      setIsReviewing(false);
+      
       const updated = await adminService.getPendaftarDetail(id);
       setData(updated);
       closeDialogs();
       
-      // Show success message dengan toast yang lebih baik
       if (actionType === 'verified') {
-        toast.success('Pendaftar berhasil diverifikasi', {
-          description: `${data.nama_lengkap} telah diverifikasi dan dapat melanjutkan ke tahap selanjutnya.`,
-          duration: 8000,
-          icon: <CheckCircle2 className="h-5 w-5" />,
-        });
+        toast.success('Pendaftar berhasil diverifikasi');
       } else {
-        toast.success('Pendaftar ditolak', {
-          description: `${data.nama_lengkap} telah ditolak dengan alasan yang telah dicatat.`,
-          duration: 8000,
-          icon: <AlertCircle className="h-5 w-5" />,
-        });
+        toast.success('Pendaftar ditolak');
       }
     } catch (e: any) {
-      toast.error('Gagal memproses', {
-        description: e?.response?.data?.error || 'Terjadi kesalahan saat memproses. Silakan coba lagi.',
-        duration: 8000,
-        action: {
-          label: 'Coba Lagi',
-          onClick: () => handleSubmitVerifikasi(),
-        },
-      });
+      toast.error('Gagal memproses');
     } finally {
       setVerifying(false);
     }
@@ -144,6 +208,9 @@ const DetailPendaftarAdmin = () => {
     if (s === 'verified') return <Badge className="bg-emerald-500 text-white">Verified</Badge>;
     if (s === 'rejected') return <Badge className="bg-rose-500 text-white">Rejected</Badge>;
     if (s === 'accepted') return <Badge className="bg-blue-500 text-white">Accepted</Badge>;
+    if (s === 'reviewing' || s === 'in_review') {
+      return <Badge className="bg-blue-500 text-white">In Review</Badge>;
+    }
     return <Badge className="bg-amber-500 text-white">Pending</Badge>;
   };
 
@@ -169,7 +236,7 @@ const DetailPendaftarAdmin = () => {
         <Navigation />
         <div className="section-padding">
           <div className="container-custom">
-            <Button variant="ghost" onClick={handleBack} className="mb-4">
+            <Button variant="ghost" onClick={() => navigate('/admin/dashboard')} className="mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
             </Button>
             <Card>
@@ -183,6 +250,7 @@ const DetailPendaftarAdmin = () => {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -199,7 +267,8 @@ const DetailPendaftarAdmin = () => {
             </div>
             <div className="flex items-center gap-3 flex-wrap">
               {renderStatusBadge(data.status)}
-              {data.status === 'pending' && (
+              
+              {data.status && ['pending', 'reviewing', 'in_review'].includes(data.status.toLowerCase()) && !isReadOnly && (
                 <div className="flex gap-2">
                   <Button
                     onClick={openVerifikasiDialog}
@@ -223,7 +292,6 @@ const DetailPendaftarAdmin = () => {
           </div>
 
           <div className="grid gap-6">
-            {/* Data Diri */}
             <Card>
               <CardHeader>
                 <CardTitle>Data Diri</CardTitle>
@@ -274,7 +342,6 @@ const DetailPendaftarAdmin = () => {
               </CardContent>
             </Card>
 
-            {/* Alamat */}
             <Card>
               <CardHeader>
                 <CardTitle>Alamat & Kontak</CardTitle>
@@ -317,7 +384,6 @@ const DetailPendaftarAdmin = () => {
               </CardContent>
             </Card>
 
-            {/* Sekolah Asal */}
             <Card>
               <CardHeader>
                 <CardTitle>Data Asal Sekolah</CardTitle>
@@ -348,7 +414,6 @@ const DetailPendaftarAdmin = () => {
               </CardContent>
             </Card>
 
-            {/* Data Orang Tua */}
             <Card>
               <CardHeader>
                 <CardTitle>Data Orang Tua</CardTitle>
@@ -386,7 +451,6 @@ const DetailPendaftarAdmin = () => {
               </CardContent>
             </Card>
 
-            {/* Status & Keterangan */}
             {data.keterangan && (
               <Card>
                 <CardHeader>
@@ -397,12 +461,12 @@ const DetailPendaftarAdmin = () => {
                 </CardContent>
               </Card>
             )}
+
           </div>
         </div>
       </div>
       <Footer />
 
-      {/* Dialog Verifikasi */}
       <Dialog open={showVerifikasiDialog} onOpenChange={setShowVerifikasiDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -470,8 +534,6 @@ const DetailPendaftarAdmin = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Dialog Tolak */}
       <Dialog open={showTolakDialog} onOpenChange={setShowTolakDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -539,6 +601,39 @@ const DetailPendaftarAdmin = () => {
                   Tolak Pendaftar
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-full">
+                <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <DialogTitle>Batalkan Review?</DialogTitle>
+            </div>
+            <DialogDescription>
+              Anda sedang dalam mode review untuk pendaftar ini. Jika Anda keluar,
+              review akan dibatalkan dan pendaftar akan dilepas (unlocked).
+              <br/><br/>
+              <strong>Lanjutkan keluar dan batalkan review?</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleStayOnPage}
+            >
+              Tetap di Halaman Ini
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmCancel}
+            >
+              Ya, Keluar & Batalkan
             </Button>
           </DialogFooter>
         </DialogContent>
