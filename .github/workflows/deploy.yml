@@ -24,6 +24,9 @@ jobs:
 
       - name: Build project
         run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WILAYAH_API_URL: ${{ secrets.VITE_WILAYAH_API_URL }}
           
       - name: Clean old project folder on VPS
         uses: appleboy/ssh-action@v1.0.0
