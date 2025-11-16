@@ -469,6 +469,26 @@ const DetailPendaftarAdmin = () => {
                         <label className="text-sm text-muted-foreground">Nama</label>
                         <p className="font-medium">{data.nama_ayah}</p>
                       </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">NIK</label>
+                        <p className="font-medium">{data.nik_ayah}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Pekerjaan</label>
+                        <p className="font-medium">{data.pekerjaan_ayah}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Penghasilan</label>
+                        <p className="font-medium">{data.penghasilan_ayah}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Pendidikan</label>
+                        <p className="font-medium">{data.pendidikan_ayah}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">No. HP</label>
+                        <p className="font-medium">{data.no_hp_ayah}</p>
+                      </div>
                     </div>
                   </div>
                   <div>
@@ -478,7 +498,27 @@ const DetailPendaftarAdmin = () => {
                         <label className="text-sm text-muted-foreground">Nama</label>
                         <p className="font-medium">{data.nama_ibu}</p>
                       </div>
-                    </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">NIK</label>
+                        <p className="font-medium">{data.nik_ibu}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Pekerjaan</label>
+                        <p className="font-medium">{data.pekerjaan_ibu}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Penghasilan</label>
+                        <p className="font-medium">{data.penghasilan_ibu}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Pendidikan</label>
+                        <p className="font-medium">{data.pendidikan_ibu}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">No. HP</label>
+                        <p className="font-medium">{data.no_hp_ibu}</p>
+                      </div>
+                      </div>
                   </div>
                   {data.nama_wali && (
                     <div className="md:col-span-2">
@@ -486,6 +526,22 @@ const DetailPendaftarAdmin = () => {
                       <div>
                         <label className="text-sm text-muted-foreground">Nama</label>
                         <p className="font-medium">{data.nama_wali}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">NIK</label>
+                        <p className="font-medium">{data.nik_wali}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Pekerjaan</label>
+                        <p className="font-medium">{data.pekerjaan_wali}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Penghasilan</label>
+                        <p className="font-medium">{data.penghasilan_wali}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Pendidikan</label>
+                        <p className="font-medium">{data.pendidikan_wali}</p>
                       </div>
                     </div>
                   )}
