@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useBlocker as useBlocker } from 'react-router-dom';
 import { adminService, PendaftarDetail, ReviewPendaftar } from '@/services/adminService';
-import { ArrowLeft, Loader2, UserCheck, UserX, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Loader2, UserCheck, UserX, AlertCircle, CheckCircle2, FileText, Eye, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 const DetailPendaftarAdmin = () => {
@@ -212,6 +212,48 @@ const DetailPendaftarAdmin = () => {
       return <Badge className="bg-blue-500 text-white">In Review</Badge>;
     }
     return <Badge className="bg-amber-500 text-white">Pending</Badge>;
+  };
+
+  const BerkasItem = ({ label, url }: { label: string, url?: string }) => {
+    if (!url) {
+      return (
+        <div className="p-3 border rounded-lg bg-muted/30 flex items-center gap-3 opacity-60">
+          <div className="p-2 bg-muted rounded-full"><FileText className="w-4 h-4" /></div>
+          <div className="text-sm">
+            <p className="font-medium">{label}</p>
+            <p className="text-xs text-destructive">Tidak ada file</p>
+          </div>
+        </div>
+      );
+    }
+  
+    const isImage = url.match(/\.(jpeg|jpg|png)$/i);
+  
+    return (
+      <div className="p-3 border rounded-lg flex items-center justify-between hover:bg-accent/5 transition-colors">
+        <div className="flex items-center gap-3 overflow-hidden">
+          {isImage ? (
+              <img src={url} alt={label} className="w-10 h-10 object-cover rounded bg-muted" />
+          ) : (
+              <div className="p-2 bg-blue-100 text-blue-600 rounded-full">
+                  <FileText className="w-5 h-5" />
+              </div>
+          )}
+          <div className="min-w-0">
+            <p className="font-medium text-sm truncate">{label}</p>
+            <a href={url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Eye className="w-3 h-3" /> Lihat File
+            </a>
+          </div>
+        </div>
+        
+        <Button variant="ghost" size="icon" asChild title="Download">
+          <a href={url} download>
+              <Download className="w-4 h-4 text-muted-foreground" />
+          </a>
+        </Button>
+      </div>
+    );
   };
 
   if (loading) {
@@ -447,6 +489,22 @@ const DetailPendaftarAdmin = () => {
                       </div>
                     </div>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Berkas Lampiran</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <BerkasItem label="Pas Foto" url={data?.foto_url} />
+                  <BerkasItem label="Akta Kelahiran" url={data?.akta_kelahiran_url} />
+                  <BerkasItem label="Ijazah / SKL" url={data?.ijazah_url} />
+                  <BerkasItem label="Kartu Keluarga" url={data?.kartu_keluarga_url} />
+                  <BerkasItem label="KTP Orang Tua" url={data?.ktp_ortu_url} />
+                  <BerkasItem label="Surat Pernyataan" url={data?.surat_pernyataan_url} />
                 </div>
               </CardContent>
             </Card>

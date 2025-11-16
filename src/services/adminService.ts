@@ -43,10 +43,17 @@ export interface PendaftarDetail {
   status: string;
   keterangan?: string | null;
   tanggal_daftar: string;
+  foto_url?: string;
+  akta_kelahiran_url?: string;
+  ijazah_url?: string;
+  kartu_keluarga_url?: string;
+  ktp_ortu_url?: string;
+  surat_pernyataan_url?: string;
 }
 
 export interface DashboardStats {
   total_pendaftar: number;
+  draft: number;
   pending: number;
   in_review: number;
   verified: number;
@@ -69,6 +76,7 @@ export const adminService = {
     const response = await api.get('/admin/pendaftar/summary');
     const s = response.data as {
       total: number;
+      draft: number;
       pending: number;
       verified: number;
       accepted: number;
@@ -78,6 +86,7 @@ export const adminService = {
     };
     return {
       total_pendaftar: s.total ?? 0,
+      draft: s.draft ?? 0,
       pending: s.pending ?? 0,
       in_review: (s as any).in_review ?? 0,
       verified: s.verified ?? 0,

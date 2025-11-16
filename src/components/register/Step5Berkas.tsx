@@ -1,203 +1,146 @@
-import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react'; // Tambah useState, useEffect
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
-import { Upload, FileCheck } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
 import { PendaftaranData } from '@/services/pendaftaranService';
-import { pendaftaranStorage } from '@/utils/pendaftaranStorage';
-import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
+import { UploadCloud, X, FileText, Image as ImageIcon, Eye } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Props {
   data: Partial<PendaftaranData>;
   onNext: (data: Partial<PendaftaranData>) => void;
   onPrev: () => void;
-}
+} 
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024; 
 
 const Step5Berkas = ({ data, onNext, onPrev }: Props) => {
-  const [files, setFiles] = useState<Record<string, File | null>>({
-    foto: null,
-    akta_kelahiran: null,
-    ijazah: null,
-    kartu_keluarga: null,
-    ktp_ortu: null,
-    surat_pernyataan: null,
+  const { handleSubmit, setValue, watch } = useForm<Partial<PendaftaranData>>({
+    defaultValues: data
   });
 
-  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+  // Kita butuh akses ke data form real-time untuk menampilkan preview
+  const values = watch();
 
-  // Load/save file drafts (simpan info nama file SEMENTARA di localStorage, bukan isi file)
-  React.useEffect(() => {
-    const draft = loadDraftStep(5);
-    if (draft) {
-      setFiles(draft.files || files);
+  const handleFileChange = (key: keyof PendaftaranData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error("File Terlalu Besar", { description: `File "${file.name}" melebihi 2MB.` });
+        e.target.value = ''; 
+        setValue(key, undefined); 
+        return;
+      }
+      setValue(key, file); // Simpan File object ke form
+      toast.success("File dipilih", { description: file.name });
     }
-  }, []);
-  React.useEffect(() => {
-    saveDraftStep(5, { files });
-    pendaftaranStorage.saveData({ files });
-  }, [files]);
-
-  // Helper function to convert size string to bytes
-  const parseSizeToBytes = (sizeStr: string): number => {
-    const size = parseFloat(sizeStr);
-    if (sizeStr.includes('KB')) return size * 1024;
-    if (sizeStr.includes('MB')) return size * 1024 * 1024;
-    if (sizeStr.includes('GB')) return size * 1024 * 1024 * 1024;
-    return size; // bytes
   };
 
-  // Helper function to format file size
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  const onSubmit = (formData: Partial<PendaftaranData>) => {
+    onNext(formData);
   };
-
-  const handleFileChange = (type: string, file: File | null, maxSizeStr: string) => {
-    if (!file) {
-      setFiles((prev) => ({ ...prev, [type]: null }));
-      setFileErrors((prev) => ({ ...prev, [type]: '' }));
-      return;
-    }
-
-    // Validate file size
-    const maxSizeBytes = parseSizeToBytes(maxSizeStr);
-    if (file.size > maxSizeBytes) {
-      setFileErrors((prev) => ({ 
-        ...prev, 
-        [type]: `Ukuran file terlalu besar. Maksimal ${maxSizeStr}, file Anda ${formatFileSize(file.size)}` 
-      }));
-      return;
-    }
-
-    // Clear error and set file
-    setFileErrors((prev) => ({ ...prev, [type]: '' }));
-    setFiles((prev) => ({ ...prev, [type]: file }));
-    toast.success(`${file.name} berhasil diupload`);
-  };
-
-  const handleSubmit = () => {
-    // Check for file errors
-    const hasErrors = Object.values(fileErrors).some(error => error !== '');
-    if (hasErrors) {
-      toast.error('Ada file yang tidak valid. Silakan periksa kembali.');
-      return;
-    }
-
-    // Mock upload - in real app, upload files here
-    if (!files.foto || !files.akta_kelahiran || !files.ijazah) {
-      toast.error('File wajib belum lengkap');
-      return;
-    }
-
-    // Simpan data file ke localStorage
-    const fileData = {
-      foto: 'mock-url/foto.jpg',
-      akta_kelahiran: 'mock-url/akta.pdf',
-      ijazah: 'mock-url/ijazah.pdf',
-      kartu_keluarga: 'mock-url/kk.pdf',
-      ktp_ortu: 'mock-url/ktp.pdf',
-      surat_pernyataan: 'mock-url/surat.pdf',
-    };
-    
-    pendaftaranStorage.saveData(fileData);
-    toast.success('File berhasil diupload');
-    onNext(fileData);
-  };
-
-  const FileUploadField = ({ label, type, accept, maxSize, required }: any) => (
-    <div className="space-y-2">
-      <Label>{label} {required && '*'}</Label>
-      <div className={`border-2 border-dashed rounded-lg p-6 text-center hover:border-primary transition-colors ${
-        fileErrors[type] ? 'border-destructive' : 'border-border'
-      }`}>
-        <Input
-          type="file"
-          accept={accept}
-          onChange={(e) => handleFileChange(type, e.target.files?.[0] || null, maxSize)}
-          className="hidden"
-          id={type}
-        />
-        <label htmlFor={type} className="cursor-pointer">
-          {files[type] ? (
-            <div className="flex items-center justify-center gap-2 text-success">
-              <FileCheck className="w-5 h-5" />
-              <div className="text-sm">
-                <div className="font-medium">{files[type]?.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {formatFileSize(files[type]?.size || 0)}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Upload className="w-8 h-8 mx-auto text-foreground" />
-              <p className="text-sm text-foreground">Klik untuk upload</p>
-              <p className="text-xs text-muted-foreground">{accept} • Max {maxSize}</p>
-            </div>
-          )}
-        </label>
-      </div>
-      {fileErrors[type] && (
-        <p className="text-sm text-destructive">{fileErrors[type]}</p>
-      )}
-    </div>
-  );
 
   return (
-    <div className="space-y-4">
-      <FileUploadField
-        label="Foto 3x4"
-        type="foto"
-        accept=".jpg,.png"
-        maxSize="500KB"
-        required
-      />
-      <FileUploadField
-        label="Akta Kelahiran"
-        type="akta_kelahiran"
-        accept=".pdf"
-        maxSize="1MB"
-        required
-      />
-      <FileUploadField
-        label="Ijazah SD/MI"
-        type="ijazah"
-        accept=".pdf"
-        maxSize="1MB"
-        required
-      />
-      <FileUploadField
-        label="Kartu Keluarga"
-        type="kartu_keluarga"
-        accept=".pdf"
-        maxSize="1MB"
-        required
-      />
-      <FileUploadField
-        label="KTP Orang Tua"
-        type="ktp_ortu"
-        accept=".pdf"
-        maxSize="1MB"
-        required
-      />
-      <FileUploadField
-        label="Surat Pernyataan"
-        type="surat_pernyataan"
-        accept=".pdf"
-        maxSize="1MB"
-        required
-      />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* ... (Bagian Info Petunjuk Upload tetap sama) ... */}
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Pass 'currentFile' agar bisa dipreview */}
+        <FileItemWithPreview label="Pas Foto (3x4)" id="foto" onChange={handleFileChange('foto')} currentFile={values.foto} existingUrl={data.foto_url} />
+        <FileItemWithPreview label="Akta Kelahiran" id="akta" onChange={handleFileChange('akta')} currentFile={values.akta} existingUrl={data.akta_kelahiran_url} />
+        <FileItemWithPreview label="Ijazah / SKL" id="ijazah" onChange={handleFileChange('ijazah')} currentFile={values.ijazah} existingUrl={data.ijazah_url} />
+        <FileItemWithPreview label="Kartu Keluarga" id="kk" onChange={handleFileChange('kk')} currentFile={values.kk} existingUrl={data.kartu_keluarga_url} />
+        <FileItemWithPreview label="KTP Orang Tua" id="ktp" onChange={handleFileChange('ktp')} currentFile={values.ktp} existingUrl={data.ktp_ortu_url} />
+        <FileItemWithPreview label="Surat Pernyataan" id="surat" onChange={handleFileChange('surat')} currentFile={values.surat} existingUrl={data.surat_pernyataan_url} />
+      </div>
 
       <div className="flex justify-between pt-4">
         <Button type="button" variant="outline" onClick={onPrev}>Kembali</Button>
-        <Button onClick={handleSubmit} className="btn-primary">Selanjutnya</Button>
+        <Button type="submit" className="btn-primary">Lanjut ke Verifikasi</Button>
       </div>
-    </div>
+    </form>
+  );
+};
+
+// --- COMPONENT BARU: File Item dengan Preview ---
+const FileItemWithPreview = ({ label, id, onChange, currentFile, existingUrl }: any) => {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<'image' | 'pdf' | null>(null);
+
+  // Efek untuk generate preview URL dari File Object (Client Side)
+  useEffect(() => {
+    if (currentFile instanceof File) {
+      const objectUrl = URL.createObjectURL(currentFile);
+      setPreview(objectUrl);
+      setFileType(currentFile.type.includes('image') ? 'image' : 'pdf');
+      
+      // Cleanup memory saat component unmount/file ganti
+      return () => URL.revokeObjectURL(objectUrl);
+    } else if (existingUrl) {
+      // Jika tidak ada file baru tapi ada URL dari database (Server Side)
+      setPreview(existingUrl);
+      const isImg = existingUrl.match(/\.(jpeg|jpg|png)$/i);
+      setFileType(isImg ? 'image' : 'pdf');
+    } else {
+      setPreview(null);
+    }
+  }, [currentFile, existingUrl]);
+
+  return (
+    <Card className={`transition-all ${preview ? 'border-primary/40 bg-primary/5' : 'hover:border-primary/50'}`}>
+      <CardContent className="pt-6 pb-4">
+        <div className="flex justify-between items-start mb-2">
+            <Label htmlFor={id} className="block font-medium text-sm text-muted-foreground">{label}</Label>
+            {preview && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-green-100 text-green-700">
+                    {currentFile ? 'Siap Upload' : 'Tersimpan'}
+                </span>
+            )}
+        </div>
+
+        {/* INPUT FILE */}
+        <div className="relative">
+            <Input 
+                id={id} 
+                type="file" 
+                accept=".jpg,.jpeg,.png,.pdf"
+                onChange={onChange}
+                className="cursor-pointer file:text-primary file:font-medium file:bg-primary/10 file:rounded-md file:px-2 file:mr-2 hover:file:bg-primary/20 transition-all pr-10"
+            />
+             {/* Tampilkan checkmark jika file sudah ada */}
+             {preview && <div className="absolute right-3 top-2.5 text-green-600 pointer-events-none"><UploadCloud className="w-4 h-4" /></div>}
+        </div>
+
+        {/* PREVIEW AREA */}
+        {preview && (
+            <div className="mt-3 p-2 bg-background rounded border border-dashed border-muted-foreground/30 flex items-center gap-3">
+                {fileType === 'image' ? (
+                    <img src={preview} alt="Preview" className="h-12 w-12 object-cover rounded-md border" />
+                ) : (
+                    <div className="h-12 w-12 flex items-center justify-center bg-red-50 rounded-md border text-red-500">
+                        <FileText className="w-6 h-6" />
+                    </div>
+                )}
+                
+                <div className="overflow-hidden flex-1">
+                    <p className="text-xs font-medium truncate">
+                        {currentFile ? currentFile.name : "File tersimpan di server"}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                        {currentFile ? (currentFile.size / 1024 / 1024).toFixed(2) + ' MB' : 'Klik tombol lihat untuk cek detail'}
+                    </p>
+                </div>
+
+                {/* Tombol Lihat (sangat berguna untuk PDF atau gambar full) */}
+                <Button variant="ghost" size="icon" type="button" onClick={() => window.open(preview, '_blank')}>
+                    <Eye className="w-4 h-4 text-primary" />
+                </Button>
+            </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

@@ -11,6 +11,7 @@ interface WilayahDropdownProps {
   defaultValues?: {
     provinsi?: string;
     kota?: string;
+    kabupaten?: string;
     kecamatan?: string;
     kelurahan?: string;
   };

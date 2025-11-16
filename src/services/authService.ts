@@ -1,65 +1,98 @@
-import { api } from '@/lib/api';
+import { api } from '@/lib/api'; 
+import { LoginRequest, LoginResponse, VerifyEmailResponse } from '@/models/auth'; 
 
-export interface LoginData {
-  email: string;
-  password: string;
-}
-
-export interface RegisterData {
-  email: string;
-  password: string;
-  nama: string;
-  nisn: string;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  nama: string;
-  role: 'siswa' | 'admin';
-}
+const USER_KEY = 'user';
+const TOKEN_KEY = 'token';
 
 export const authService = {
-  async login(data: LoginData): Promise<{ token: string; user: User }> {
+  /**
+   * Login user dan simpan data ke local storage
+   */
+  async login(data: LoginRequest): Promise<LoginResponse> {
     const response = await api.post('/auth/login', data);
-    const { token, nama, email, role } = response.data;
-    const normalizedEmail = email || data.email; // ensure email is present
-    const user: User = { id: '', nama, email: normalizedEmail, role };
-    // Add id if provided
-    if (response.data.id) user.id = response.data.id;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    return { token, user };
+    const result = response.data as LoginResponse;
+
+    // --- INI PERBAIKANNYA ---
+    // Cek properti yang benar (nama, role, token) yang dikirim dari Go
+    if (result.token && result.nama && result.role) {
+      
+      // 1. Simpan token
+      localStorage.setItem(TOKEN_KEY, result.token);
+
+      // 2. Buat objek user yang akan disimpan
+      const userPayload = {
+        nama: result.nama,
+        role: result.role,
+        email: data.email, // Ambil email dari data login
+        no_pendaftaran: result.no_pendaftaran,
+      };
+      
+      // 3. Simpan user
+      localStorage.setItem(USER_KEY, JSON.stringify(userPayload));
+    } else {
+      // Jika backend tidak mengirim data yang diharapkan
+      throw new Error("Respons login tidak valid dari server.");
+    }
+    
+    return result;
   },
 
-  async register(data: RegisterData): Promise<{ message: string }> {
-    // Fallback, BE belum ada endpoint
-    return { message: 'Registrasi belum tersedia di backend.' };
-    // Jika sudah ada, aktifkan berikut:
-    // const response = await api.post('/auth/register', data);
-    // return response.data;
-  },
-
-  async getMe(): Promise<User> {
-    // Fallback localStorage, BE belum ada endpoint getMe
-    const userStr = localStorage.getItem('user');
-    if (!userStr) throw new Error('Not authenticated');
-    return JSON.parse(userStr);
-    // Jika sudah ada:
-    // const response = await api.get('/auth/me');
-    // return response.data;
-  },
-
+  /**
+   * Hapus data dari local storage
+   */
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   },
 
+  /**
+   * Cek apakah token ada dan valid
+   */
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      return false;
+    }
+    return true;
   },
 
+  /**
+   * Ambil token dari local storage
+   */
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem(TOKEN_KEY);
   },
-};
+
+  /**
+   * Ambil data user dari local storage
+   */
+  getUser() {
+    const userStr = localStorage.getItem(USER_KEY);
+    return userStr ? JSON.parse(userStr) : null;
+  },
+
+
+  /**
+   * Mengirim token verifikasi ke backend.
+   * (Memanggil POST /api/auth/verify-email)
+   */
+  async verifyEmail(token: string): Promise<VerifyEmailResponse> {
+    try {
+      const response = await api.post('/auth/verify-email', { token });
+      return response.data;
+    } catch (error) {
+      console.error('Email verification failed:', error);
+      throw error; 
+    }
+  },
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    try {
+      const response = await api.post('/auth/forgot-password', { email });
+      return response.data;
+    } catch (error) {
+      console.error('Forgot password request failed:', error);
+      throw error;
+    }
+  },
+};  

@@ -10,36 +10,57 @@ import { pendaftaranStorage } from '@/utils/pendaftaranStorage';
 import React from 'react';
 import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
 import { cekService } from '@/services/cekService';
+import { toast } from 'sonner';
 
 const schema = z.object({
+  nama_lengkap: z.string(),
   nisn: z.string().length(10, 'NISN harus 10 digit').regex(/^[0-9]{10}$/, 'NISN harus berupa 10 digit angka'),
   nik: z.string().length(16, 'NIK harus 16 digit').regex(/^[0-9]{16}$/, 'NIK harus berupa 16 digit angka'),
-  nama_lengkap: z.string().min(3, 'Nama minimal 3 karakter'),
   tempat_lahir: z.string().min(2, 'Tempat lahir minimal 2 karakter').regex(/^[a-zA-Z\s]+$/, 'Tempat lahir hanya boleh berisi huruf dan spasi'),
   tanggal_lahir: z
     .string()
     .refine(
-      (v) => /^\d{4}-\d{2}-\d{2}$/.test(v) || /^(\d{2})[\/-](\d{2})[\/-](\d{4})$/.test(v),
-      { message: 'Tanggal lahir tidak valid' }
-    ),
-  jenis_kelamin: z.enum(['L', 'P'], { required_error: 'Jenis kelamin wajib dipilih' }),
-  agama: z.string().min(1, 'Agama wajib dipilih'),
-  anak_ke: z.coerce.number().min(1, 'Anak ke minimal 1'),
-  jumlah_saudara: z.coerce.number().min(0, 'Jumlah saudara minimal 0'),
-});
+      (v) => v && (/\d{4}-\d{2}-\d{2}/.test(v) || /\d{2}[\/-]\d{2}[\/-]\d{4}/.test(v)),
+      { message: 'Format tanggal lahir tidak valid' }
+    )
+    .refine((v) => {
+      if (!v) return false;
+      let dateStr = v.replace(/-/g, '/');
+      if (!/^\d{4}\/\d{2}\/\d{2}$/.test(dateStr)) {
+        const [dd, mm, yyyy] = dateStr.split('/');
+        dateStr = `${yyyy}/${mm}/${dd}`;
+      }
+      const birthDate = new Date(dateStr);
+      if (isNaN(birthDate.getTime())) return false;
 
-// Semua validasi Zod dinonaktifkan sementara, semua field optional
-// const schema = z.object({
-//   nisn: z.string().optional(),
-//   nik: z.string().optional(),
-//   nama_lengkap: z.string().optional(),
-//   tempat_lahir: z.string().optional(),
-//   tanggal_lahir: z.string().optional(),
-//   jenis_kelamin: z.string().optional(),
-//   agama: z.string().optional(),
-//   anak_ke: z.coerce.number().optional(),
-//   jumlah_saudara: z.coerce.number().optional(),
-// });
+      const currentYear = new Date().getFullYear();
+      const cutoffDate = new Date(currentYear, 6, 1); // 1 Juli
+
+      let age = cutoffDate.getFullYear() - birthDate.getFullYear();
+      const m = cutoffDate.getMonth() - birthDate.getMonth();
+      
+      if (m < 0 || (m === 0 && cutoffDate.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age <= 15;
+    }, { message: 'Umur maksimal 15 tahun pada tanggal 1 Juli tahun ini' }),
+    jenis_kelamin: z.preprocess(
+      (val) => (val === '' ? undefined : val), // Jika string kosong, anggap 'undefined'
+      z.enum(['L', 'P'], { 
+        required_error: 'Jenis kelamin wajib dipilih' // Sekarang error ini akan muncul
+      })
+    ),
+  agama: z.string({ required_error: 'Agama wajib diisi' }).min(1, 'Agama wajib diisi'),
+  
+  anak_ke: z.preprocess(
+    (val) => (val === '' ? undefined : Number(val)),
+    z.number({ required_error: 'Anak ke wajib diisi' }).min(1, 'Anak ke minimal 1')
+  ),
+  jumlah_saudara: z.preprocess(
+    (val) => (val === '' ? undefined : Number(val)),
+    z.number({ required_error: 'Jumlah saudara wajib diisi' }).min(0, 'Jumlah saudara minimal 0')
+  ),
+});
 
 type FormData = z.infer<typeof schema>;
 
@@ -50,18 +71,46 @@ interface Props {
 }
 
 const Step1DataDiri = ({ data, onNext }: Props) => {
-  const { register, handleSubmit, formState: { errors }, setValue, setError, getValues, reset, watch } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: data as FormData,
-  });
 
-  // Saat mount, ambil draft dari localStorage kalau ada
+  // --- PERBAIKAN DI SINI ---
+
+  // 1. Cek apakah data ini "baru" (artinya, NIK belum diisi)
+  // Backend mengirim `nik: ""` jika datanya NULL.
+  const isNewData = (data.nik === '' || !data.nik);
+
+  const { register, handleSubmit, formState: { errors }, setValue, setError, reset, watch } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    
+    // 2. Terapkan logika "data baru" ke defaultValues
+    defaultValues: {
+        ...data as FormData,
+        
+        // Jika data baru DAN anak_ke adalah 0 (default DB), set 'undefined' agar field kosong
+        anak_ke: (isNewData && data.anak_ke === 0) ? undefined : data.anak_ke,
+        
+        // Jika data baru DAN jumlah_saudara adalah 0 (default DB), set 'undefined'
+        // Jika data LAMA dan 0, biarkan 0 (karena user mungkin memang mengisinya 0)
+        jumlah_saudara: (isNewData && data.jumlah_saudara === 0) ? undefined : data.jumlah_saudara,
+    },
+  });
+  
+  // --- AKHIR PERBAIKAN ---
+
+
   React.useEffect(() => {
     const localDraft = loadDraftStep(1);
-    if (localDraft) reset(localDraft);
-  }, [reset]);
+    if (localDraft) {
+      // Saat load draf, pastikan data read-only (NISN, Nama) tetap dari server
+      reset({ 
+        ...localDraft, 
+        nama_lengkap: data.nama_lengkap, 
+        nisn: data.nisn 
+      });
+    }
+    // (Logika 'else' tidak diperlukan lagi karena defaultValues sudah benar)
+  }, [data, reset]);
 
-  // Auto-save ke localStorage setiap form berubah
+  // Auto-save draf
   React.useEffect(() => {
     const subscription = watch((values) => {
       saveDraftStep(1, values);
@@ -70,98 +119,98 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  // Custom onSubmit dengan cek unique field ke API
+  const jenisKelaminOptions = ['L', 'P'];
+  const agamaOptions = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'];
+
   const onSubmit = async (formData: FormData) => {
     saveDraftStep(1, formData);
     pendaftaranStorage.saveData(formData);
 
-    let isError = false;
-    if (!formData.nisn) {
-      setError('nisn', { type: 'manual', message: 'NISN wajib diisi' });
-      isError = true;
+    // Cek NIK
+    try {
+        // Cek NIK hanya jika NIK diubah (jika data.nik ada dan beda dari formData.nik)
+        // Tapi untuk simplifikasi, cek saja jika NIK baru
+        if (isNewData) {
+            const nikTaken = await cekService.cekNik(formData.nik);
+            if (nikTaken) {
+            setError('nik', { type: 'manual', message: 'NIK sudah terdaftar' });
+            return;
+            }
+        }
+    } catch (err) {
+        toast.error("Gagal validasi NIK", { description: "Gagal terhubung ke server untuk cek NIK." });
+        return;
     }
-    if (!formData.nik) {
-      setError('nik', { type: 'manual', message: 'NIK wajib diisi' });
-      isError = true;
-    }
-    if (isError) return;
 
-    // Normalisasi ke format ISO (YYYY-MM-DD) untuk backend
+    // Normalisasi tanggal lahir
     let raw = formData.tanggal_lahir.trim();
     if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-      // sudah benar
       formData.tanggal_lahir = raw;
     } else {
       raw = raw.replace(/-/g, '/');
       const [dd, mm, yyyy] = raw.split('/');
       formData.tanggal_lahir = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
     }
-
-    // Cek NISN & NIK paralel
-    const [nisnTaken, nikTaken] = await Promise.all([
-      cekService.cekNisn(formData.nisn),
-      cekService.cekNik(formData.nik)
-    ]);
-    isError = false;
-    if (nisnTaken) {
-      setError('nisn', { type: 'manual', message: 'NISN sudah terdaftar' });
-      isError = true;
-    }
-    if (nikTaken) {
-      setError('nik', { type: 'manual', message: 'NIK sudah terdaftar' });
-      isError = true;
-    }
-    if (isError) return;
-    onNext(formData as Partial<PendaftaranData>);
+    
+    const finalData = { ...data, ...formData };
+    onNext(finalData as Partial<PendaftaranData>);
   };
 
-  // Handler untuk mencegah input negatif
+  // ... (Sisa handler tidak berubah) ...
   const handleNumberInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
       e.preventDefault();
     }
   };
-
-  // Handler untuk mencegah paste nilai negatif
   const handleNumberPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pastedText = e.clipboardData.getData('text');
     if (pastedText.includes('-') || isNaN(Number(pastedText)) || Number(pastedText) < 0) {
       e.preventDefault();
     }
   };
-
   const handleTanggalDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value || '';
-    // izinkan hanya angka dan '-'
     v = v.replace(/[^0-9-]/g, '');
     const parts = v.split('-');
-    // format native date input: YYYY-MM-DD
-    if (parts[0]) parts[0] = parts[0].slice(0, 4); // tahun max 4 digit
+    if (parts[0]) parts[0] = parts[0].slice(0, 4);
     if (parts[1]) parts[1] = parts[1].slice(0, 2);
     if (parts[2]) parts[2] = parts[2].slice(0, 2);
     v = parts.filter(Boolean).join('-');
     setValue('tanggal_lahir', v, { shouldValidate: true });
   };
 
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="nisn">NISN *</Label>
-          <Input id="nisn" {...register('nisn')} placeholder="1234567890" />
-          {errors.nisn && <p className="text-sm text-destructive mt-1">{errors.nisn.message}</p>}
-        </div>
-        <div>
-          <Label htmlFor="nik">NIK *</Label>
-          <Input id="nik" {...register('nik')} placeholder="3201234567890123" />
-          {errors.nik && <p className="text-sm text-destructive mt-1">{errors.nik.message}</p>}
-        </div>
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      
+      <div>
+        <Label htmlFor="nama_lengkap">Nama Lengkap</Label>
+        <Input 
+            id="nama_lengkap" 
+            {...register('nama_lengkap')} 
+            disabled 
+            className="opacity-70 cursor-not-allowed"
+        />
+        <p className="text-xs text-muted-foreground mt-1">Nama diambil dari data registrasi awal.</p>
       </div>
 
-      <div>
-        <Label htmlFor="nama_lengkap">Nama Lengkap *</Label>
-        <Input id="nama_lengkap" {...register('nama_lengkap')} />
-        {errors.nama_lengkap && <p className="text-sm text-destructive mt-1">{errors.nama_lengkap.message}</p>}
+      <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="nisn">NISN</Label>
+            <Input 
+                id="nisn" 
+                {...register('nisn')} 
+                disabled 
+                className="opacity-70 cursor-not-allowed"
+            />
+            <p className="text-xs text-muted-foreground mt-1">NISN tidak dapat diubah.</p>
+          </div>
+          
+          <div>
+            <Label htmlFor="nik">NIK (Siswa) *</Label>
+            <Input id="nik" {...register('nik')} placeholder="16 Digit NIK dari KK" />
+            {errors.nik && <p className="text-sm text-destructive mt-1">{errors.nik.message}</p>}
+          </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
@@ -192,25 +241,19 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
               <SelectValue placeholder="Pilih" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="L">Laki-laki</SelectItem>
-              <SelectItem value="P">Perempuan</SelectItem>
+            {jenisKelaminOptions.map((o) => <SelectItem key={o} value={o}>{o === 'L' ? 'Laki-laki' : 'Perempuan'}</SelectItem>)}
             </SelectContent>
           </Select>
           {errors.jenis_kelamin && <p className="text-sm text-destructive mt-1">{errors.jenis_kelamin.message}</p>}
         </div>
         <div>
           <Label htmlFor="agama">Agama *</Label>
-          <Select onValueChange={(value) => setValue('agama', value)} defaultValue={data.agama}>
+          <Select onValueChange={(value) => setValue('agama', value, { shouldValidate: true })} defaultValue={data.agama || ""}>
             <SelectTrigger>
               <SelectValue placeholder="Pilih" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Islam">Islam</SelectItem>
-              <SelectItem value="Kristen">Kristen</SelectItem>
-              <SelectItem value="Katolik">Katolik</SelectItem>
-              <SelectItem value="Hindu">Hindu</SelectItem>
-              <SelectItem value="Buddha">Buddha</SelectItem>
-              <SelectItem value="Konghucu">Konghucu</SelectItem>
+              {agamaOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
             </SelectContent>
           </Select>
           {errors.agama && <p className="text-sm text-destructive mt-1">{errors.agama.message}</p>}
@@ -244,7 +287,7 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-4">
         <Button type="submit" className="btn-primary">Selanjutnya</Button>
       </div>
     </form>

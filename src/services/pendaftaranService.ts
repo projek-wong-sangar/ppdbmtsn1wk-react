@@ -1,10 +1,17 @@
 import { api } from '@/lib/api';
 
-export interface PendaftaranData {
-  // Step 1: Data Diri
-  nisn: string;
-  nik: string;
+export interface InitialRegisterData {
   nama_lengkap: string;
+  nisn: string;
+  email: string;
+}
+
+export interface PendaftaranData {
+  nama_lengkap?: string; 
+  nisn?: string;
+  email?: string;
+  // Step 1: Data Diri
+  nik: string;
   tempat_lahir: string;
   tanggal_lahir: string;
   jenis_kelamin: 'L' | 'P';
@@ -22,7 +29,6 @@ export interface PendaftaranData {
   provinsi: string;
   kode_pos: string;
   no_hp: string;
-  email: string;
   
   // Step 3: Data Asal Sekolah
   asal_sekolah: string;
@@ -55,12 +61,27 @@ export interface PendaftaranData {
   hubungan_wali?: string;
   
   // Step 5: Upload Berkas (file paths/URLs)
-  foto?: string;
-  akta_kelahiran?: string;
-  ijazah?: string;
-  kartu_keluarga?: string;
-  ktp_ortu?: string;
-  surat_pernyataan?: string;
+  foto?: File;
+  akta?: File;
+  ijazah?: File;
+  kk?: File;
+  ktp?: File;
+  surat?: File;
+
+  // Tipe string URL saat data di-load dari server (getProfil)
+  foto_url?: string;
+  akta_kelahiran_url?: string;
+  ijazah_url?: string;
+  kartu_keluarga_url?: string;
+  ktp_ortu_url?: string;
+  surat_pernyataan_url?: string;
+}
+
+// Tipe data yang dikembalikan oleh API Pendaftaran
+export interface RegisterResponse {
+  message: string;
+  no_pendaftaran: string;
+  id: string;
 }
 
 export interface StatusPendaftaran {
@@ -73,38 +94,53 @@ export interface StatusPendaftaran {
 }
 
 export const pendaftaranService = {
-  async submitPendaftaran(data: PendaftaranData): Promise<{ message: string; no_pendaftaran: string }> {
+  /**
+   * Register Awal (Hanya Nama, NISN, Email)
+   */
+  async registerInitial(data: InitialRegisterData): Promise<RegisterResponse> {
     const response = await api.post('/siswa/pendaftaran', data);
     return response.data;
   },
 
-  async getStatus(): Promise<StatusPendaftaran> {
-    // Fallback jika BE blm ada endpoint /siswa/status
-    return {
-      id: '-',
-      no_pendaftaran: '-',
-      nama: '-',
-      status: 'pending',
-      tanggal_daftar: new Date().toISOString(),
-      keterangan: 'Fitur status belum tersedia - tunggu backend.'
-    };
-    // Jika sudah ada:
-    // const response = await api.get('/siswa/status');
-    // return response.data;
+  async getProfil(): Promise<any> { // Return type bisa disesuaikan dengan PendaftaranData + extra fields
+    const response = await api.get('/siswa/profil');
+    return response.data;
   },
 
-  async uploadFile(file: File, type: string): Promise<{ url: string }> {
-    // Fallback - backend blm ada endpoint upload
-    return {
-      url: `https://mock-storage.com/${type}/${file.name}`,
-    };
-    // Jika sudah ada:
-    // const formData = new FormData();
-    // formData.append('file', file);
-    // formData.append('type', type);
-    // const response = await api.post('/siswa/upload', formData, {
-    //   headers: { 'Content-Type': 'multipart/form-data' },
-    // });
-    // return response.data;
+  /**
+   * Mengirim Update Data Lengkap (Step 1-6)
+   */
+  async updateDataLengkap(data: PendaftaranData) {
+    // Gunakan PUT ke endpoint protected
+    const response = await api.put('/siswa/pendaftaran', data);
+    return response.data;
   },
+
+  /**
+   * Mengirim file berkas (Step 5)
+   * Ini adalah endpoint publik yang memerlukan siswa_id
+   */
+  async uploadBerkas(siswaId: string, files: Partial<PendaftaranData>) {
+    const formData = new FormData();
+    
+    // WAJIB: Kirim siswa_id agar backend tahu ini file milik siapa
+    formData.append('siswa_id', siswaId); 
+
+    // Tambahkan file ke form data hanya jika ada
+    if (files.foto) formData.append('foto', files.foto);
+    if (files.akta) formData.append('akta', files.akta);
+    if (files.ijazah) formData.append('ijazah', files.ijazah);
+    if (files.kk) formData.append('kk', files.kk);
+    if (files.ktp) formData.append('ktp', files.ktp);
+    if (files.surat) formData.append('surat', files.surat);
+
+    // Kirim ke endpoint publik
+    const response = await api.post('/siswa/berkas', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
+    return response.data;
+  }
 };

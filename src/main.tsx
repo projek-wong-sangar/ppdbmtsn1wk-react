@@ -14,6 +14,7 @@ const Informasi = lazy(() => import('./pages/Informasi'));
 const Pengumuman = lazy(() => import('./pages/Pengumuman'));
 const Kontak = lazy(() => import('./pages/Kontak'));
 const Faq = lazy(() => import('./pages/Faq'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 
 const DashboardSiswa = lazy(() => import('./pages/siswa/Dashboard.tsx'));
 const ProfilSiswa = lazy(() => import('./pages/siswa/Profil.tsx'));
@@ -38,7 +39,8 @@ const router = createBrowserRouter([
       { path: '/pengumuman', element: <Pengumuman /> },
       { path: '/kontak', element: <Kontak /> },
       { path: '/faq', element: <Faq /> },
-      
+      { path: '/verify-email', element: <VerifyEmail /> },
+
       {
         element: <ProtectedRoute allowedRoles={['siswa']} />,
         children: [

@@ -12,9 +12,9 @@ import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
 
 const schema = z.object({
   asal_sekolah: z.string().min(5, 'Nama sekolah minimal 5 karakter'),
-  npsn_sekolah: z.string().min(8, 'NPSN minimal 8 digit'),
+  npsn_sekolah: z.string().length(8, 'NPSN harus 8 digit').regex(/^\d{8}$/, 'NPSN harus berupa 8 digit angka'),
   alamat_sekolah: z.string().min(10, 'Alamat sekolah minimal 10 karakter'),
-  tahun_lulus: z.string().max(4, 'Kode pos maksimal 4 digit').regex(/^\d{4}$/, 'Tahun Lulus harus berupa 4 digit angka'),
+  tahun_lulus: z.string().length(4, 'Tahun Lulus harus 4 digit').regex(/^\d{4}$/, 'Tahun Lulus harus berupa 4 digit angka'),
   no_ijazah: z.string().min(5, 'Nomor ijazah wajib diisi'),
 });
 

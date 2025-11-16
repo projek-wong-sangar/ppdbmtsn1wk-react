@@ -18,16 +18,16 @@ const schema = z
     nama_ayah: z.string().min(3,'Nama Ayah minimal 3 karakter'),
     nik_ayah: z.string().length(16, 'NIK harus 16 digit').regex(/^[0-9]{16}$/, 'NIK harus berupa 16 digit angka'),
     pekerjaan_ayah: z.string().min(3,'Pekerjaan Ayah minimal 3 karakter'),
-    penghasilan_ayah: z.string().min(1,'Penghasilan Ayah waijib diisi'),
-    pendidikan_ayah: z.string().min(1,'Pendidikan Ayah waijib diisi'),
-    no_hp_ayah: z.string().min(10,'Nomor HP Ayah minimal 10 digit'),
+    penghasilan_ayah: z.string({ required_error: 'Penghasilan Ayah wajib diisi' }).min(1, 'Penghasilan Ayah wajib diisi'),
+    pendidikan_ayah: z.string({ required_error: 'Pendidikan Ayah wajib diisi' }).min(1, 'Pendidikan Ayah wajib diisi'),
+    no_hp_ayah: z.string().length(10, 'Nomor HP Ayah harus 10 digit').regex(/^\d{10}$/, 'Nomor HP Ayah harus berupa 10 digit angka'),
 
     nama_ibu: z.string().min(3,'Nama Ibu minimal 3 karakter'),
     nik_ibu: z.string().length(16, 'NIK harus 16 digit').regex(/^[0-9]{16}$/, 'NIK harus berupa 16 digit angka'),
     pekerjaan_ibu: z.string().min(3,'Pekerjaan Ibu minimal 3 karakter'),
-    penghasilan_ibu: z.string().min(1,'Penghasilan Ibu waijib diisi'),
-    pendidikan_ibu: z.string().min(1,'Pendidikan Ibu waijib diisi'),
-    no_hp_ibu: z.string().min(10,'Nomor HP Ibu minimal 10 digit'),
+    penghasilan_ibu: z.string({ required_error: 'Penghasilan Ibu wajib diisi' }).min(1, 'Penghasilan Ibu wajib diisi'),
+    pendidikan_ibu: z.string({ required_error: 'Pendidikan Ibu wajib diisi' }).min(1, 'Pendidikan Ibu wajib diisi'),
+    no_hp_ibu: z.string().length(10, 'Nomor HP Ibu harus 10 digit').regex(/^\d{10}$/, 'Nomor HP Ibu harus berupa 10 digit angka'),
 
     // Wali (opsional secara field, tapi akan diatur oleh checkbox & superRefine)
     nama_wali: z.string().optional(),
@@ -223,7 +223,7 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
           </div>
           <div>
             <Label>Penghasilan *</Label>
-            <Select onValueChange={(v) => setValue('penghasilan_ayah', v)} defaultValue={data.penghasilan_ayah}>
+            <Select onValueChange={(v) => setValue('penghasilan_ayah', v, { shouldValidate: true })} defaultValue={data.penghasilan_ayah || ""}>
               <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
               <SelectContent>
                 {penghasilanOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
@@ -233,7 +233,7 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
           </div>
           <div>
             <Label>Pendidikan *</Label>
-            <Select onValueChange={(v) => setValue('pendidikan_ayah', v)} defaultValue={data.pendidikan_ayah}>
+            <Select onValueChange={(v) => setValue('pendidikan_ayah', v, { shouldValidate: true })} defaultValue={data.pendidikan_ayah || ""}>
               <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
               <SelectContent>
                 {pendidikanOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
@@ -270,7 +270,7 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
           </div>
           <div>
             <Label>Penghasilan *</Label>
-            <Select onValueChange={(v) => setValue('penghasilan_ibu', v)} defaultValue={data.penghasilan_ibu}>
+            <Select onValueChange={(v) => setValue('penghasilan_ibu', v, { shouldValidate: true })} defaultValue={data.penghasilan_ibu || ""}>
               <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
               <SelectContent>
                 {penghasilanOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
@@ -280,7 +280,7 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
           </div>
           <div>
             <Label>Pendidikan *</Label>
-            <Select onValueChange={(v) => setValue('pendidikan_ibu', v)} defaultValue={data.pendidikan_ibu}>
+            <Select onValueChange={(v) => setValue('pendidikan_ibu', v, { shouldValidate: true })} defaultValue={data.pendidikan_ibu || ""}>
               <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
               <SelectContent>
                 {pendidikanOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}

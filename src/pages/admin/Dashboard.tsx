@@ -1,7 +1,6 @@
 import Navigation from '@/components/layout/Navigation';
-import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, UserCheck, UserX, Clock, Eye, CheckCircle, Search, Filter, ChevronDown, ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
+import { Users, UserCheck, UserX, Clock, SquarePen, Eye, Search, Filter, ChevronDown, ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminService } from '@/services/adminService';
@@ -12,6 +11,7 @@ const DashboardAdmin = () => {
   const token = authService.getToken() || '';
   const [summary, setSummary] = useState({
     total_pendaftar: 0,
+    draft: 0,
     pending: 0,
     in_review: 0,
     verified: 0,
@@ -23,6 +23,7 @@ const DashboardAdmin = () => {
 
   const stats = [
     { icon: Users,       label: 'Total Pendaftar', value: nf.format(summary.total_pendaftar), color: 'text-primary',         bg: 'bg-primary/5' },
+    { icon: SquarePen,       label: 'Draft',         value: nf.format(summary.draft),         color: 'text-slate-700',        bg: 'bg-slate-100 dark:bg-slate-950/30' },
     { icon: Clock,       label: 'Pending',         value: nf.format(summary.pending),         color: 'text-slate-700',        bg: 'bg-slate-100 dark:bg-slate-950/30' },
     { icon: Eye,         label: 'In Review',       value: nf.format(summary.in_review),      color: 'text-amber-700',        bg: 'bg-amber-100 dark:bg-amber-950/30' },
     { icon: UserCheck,   label: 'Verified',        value: nf.format(summary.verified),       color: 'text-emerald-700',      bg: 'bg-emerald-100 dark:bg-emerald-950/30' },
@@ -32,7 +33,7 @@ const DashboardAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'in_review' | 'verified' | 'rejected'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'pending' | 'in_review' | 'verified' | 'rejected'>('all');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [total, setTotal] = useState(0);
@@ -49,7 +50,8 @@ const DashboardAdmin = () => {
     if (s === 'verified')  return <span className={`${base} bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300`}>Verified</span>;
     if (s === 'rejected')  return <span className={`${base} bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-300`}>Rejected</span>;
     if (s === 'in_review') return <span className={`${base} bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-300`}>In Review</span>;
-    return                       <span className={`${base} bg-slate-100 text-slate-800 dark:bg-slate-950/30 dark:text-slate-300`}>Pending</span>;
+    if (s === 'pending') return  <span className={`${base} bg-slate-100 text-slate-800 dark:bg-slate-950/30 dark:text-slate-300`}>Pending</span>;
+    return                     <span className={`${base} bg-slate-100 text-slate-800 dark:bg-slate-950/30 dark:text-slate-300`}>Draft</span>;
   };
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
@@ -111,7 +113,7 @@ const DashboardAdmin = () => {
             <p className="text-muted-foreground mt-1 text-sm">Ringkasan dan daftar pendaftar terbaru</p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
             {stats.map((stat, i) => (
               <Card key={i} className={stat.bg}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -166,6 +168,7 @@ const DashboardAdmin = () => {
                   className="appearance-none w-full pl-10 pr-8 py-3 border border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground font-medium shadow-sm hover:border-ring transition-all cursor-pointer"
                 >
                   <option value="all">Semua Status</option>
+                  <option value="draft">Draft</option>
                   <option value="pending">Pending</option>
                   <option value="in_review">In Review</option>
                   <option value="verified">Verified</option>
