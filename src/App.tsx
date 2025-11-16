@@ -16,7 +16,7 @@ const Loading = () => (
 
 const App = () => {
   useEffect(() => {
-    if (import.meta.env.DEV) CD();
+    CD();
   }, []);
 
   useEffect(() => {
