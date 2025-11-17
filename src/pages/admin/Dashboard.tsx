@@ -22,12 +22,12 @@ const DashboardAdmin = () => {
   const nf = useMemo(() => new Intl.NumberFormat('id-ID'), []);
 
   const stats = [
-    { icon: Users,       label: 'Total Pendaftar', value: nf.format(summary.total_pendaftar), color: 'text-primary',         bg: 'bg-primary/5' },
-    { icon: SquarePen,       label: 'Draft',         value: nf.format(summary.draft),         color: 'text-slate-700',        bg: 'bg-slate-100 dark:bg-slate-950/30' },
-    { icon: Clock,       label: 'Pending',         value: nf.format(summary.pending),         color: 'text-slate-700',        bg: 'bg-slate-100 dark:bg-slate-950/30' },
-    { icon: Eye,         label: 'In Review',       value: nf.format(summary.in_review),      color: 'text-amber-700',        bg: 'bg-amber-100 dark:bg-amber-950/30' },
-    { icon: UserCheck,   label: 'Verified',        value: nf.format(summary.verified),       color: 'text-emerald-700',      bg: 'bg-emerald-100 dark:bg-emerald-950/30' },
-    { icon: UserX,       label: 'Rejected',        value: nf.format(summary.rejected),       color: 'text-rose-700',         bg: 'bg-rose-100 dark:bg-rose-950/30' },
+    { icon: Users,       label: 'Total',           value: nf.format(summary.total_pendaftar), color: 'text-indigo-700',       bg: 'bg-indigo-100 dark:bg-indigo-950/30' },
+    { icon: SquarePen,   label: 'Draft',           value: nf.format(summary.draft),           color: 'text-zinc-600',         bg: 'bg-zinc-100 dark:bg-zinc-950/30' },
+    { icon: Clock,       label: 'Pending',         value: nf.format(summary.pending),         color: 'text-blue-700',         bg: 'bg-blue-100 dark:bg-blue-950/30' },
+    { icon: Eye,         label: 'In Review',       value: nf.format(summary.in_review),       color: 'text-amber-700',        bg: 'bg-amber-100 dark:bg-amber-950/30' },
+    { icon: UserCheck,   label: 'Verified',        value: nf.format(summary.verified),        color: 'text-emerald-700',      bg: 'bg-emerald-100 dark:bg-emerald-950/30' },
+    { icon: UserX,       label: 'Rejected',        value: nf.format(summary.rejected),        color: 'text-rose-700',         bg: 'bg-rose-100 dark:bg-rose-950/30' },
   ];
 
   const [loading, setLoading] = useState(false);
