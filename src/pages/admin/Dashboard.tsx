@@ -1,5 +1,6 @@
 import Navigation from '@/components/layout/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Users, UserCheck, UserX, Clock, SquarePen, Eye, Search, Filter, ChevronDown, ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,7 +34,7 @@ const DashboardAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'pending' | 'in_review' | 'verified' | 'rejected'>('all');
+  const [statusFilter, setStatusFilter] = useState<string[]>(['all']);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [total, setTotal] = useState(0);
@@ -44,13 +45,44 @@ const DashboardAdmin = () => {
     navigate(`/admin/pendaftar/${id}`);
   };
 
+  const filterStatusOptions = [
+    { value: 'draft',     label: 'Draft' },
+    { value: 'pending',   label: 'Pending' },
+    { value: 'in_review', label: 'In Review' },
+    { value: 'verified',  label: 'Verified' },
+    { value: 'rejected',  label: 'Rejected' },
+  ];
+
+  const toggleStatusFilter = (value: string) => {
+    setPage(1);
+    setStatusFilter((prev) => {
+      if (value === 'all') {
+        return ['all'];
+      } else {
+        let newFilter = prev.filter((f) => f !== 'all');
+
+        if (newFilter.includes(value)) {
+          newFilter = newFilter.filter((v) => v !== value);
+        } else {
+          newFilter = [...newFilter, value];
+        }
+
+        if (newFilter.length === 0) {
+          return ['all'];
+        }
+
+        return newFilter;
+      }
+    });
+  };
+
   const renderStatusBadge = (status?: string) => {
     const s = (status || '').toLowerCase();
     const base = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
     if (s === 'verified')  return <span className={`${base} bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300`}>Verified</span>;
     if (s === 'rejected')  return <span className={`${base} bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-300`}>Rejected</span>;
     if (s === 'in_review') return <span className={`${base} bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-300`}>In Review</span>;
-    if (s === 'pending') return  <span className={`${base} bg-slate-100 text-slate-800 dark:bg-slate-950/30 dark:text-slate-300`}>Pending</span>;
+    if (s === 'pending') return  <span className={`${base} bg-blue-100 text-slate-800 dark:bg-slate-950/30 dark:text-slate-300`}>Pending</span>;
     return                     <span className={`${base} bg-slate-100 text-slate-800 dark:bg-slate-950/30 dark:text-slate-300`}>Draft</span>;
   };
 
@@ -61,12 +93,16 @@ const DashboardAdmin = () => {
       setLoading(true);
       setError('');
       const { data, total: t } = await adminService.getPendaftarList({
-        status: statusFilter === 'all' ? undefined : statusFilter,
+        status: statusFilter.includes('all') ? undefined : statusFilter.join(','),
         search: searchTerm || undefined,
         page,
         limit,
       });
-      setRows(data || []);
+      setRows((data || []).sort((a, b) => {
+        const t1 = new Date(a.tanggal_daftar || 0).getTime();
+        const t2 = new Date(b.tanggal_daftar || 0).getTime();
+        return t1 - t2;
+      }));
       setTotal(t || 0);
     } catch (e: any) {
       setError(e?.message || 'Gagal memuat data pendaftar');
@@ -77,7 +113,6 @@ const DashboardAdmin = () => {
 
   useEffect(() => {
     fetchRows();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, page, limit]);
 
   useEffect(() => {
@@ -86,7 +121,6 @@ const DashboardAdmin = () => {
       fetchRows();
     }, 300);
     return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   useEffect(() => {
@@ -96,7 +130,6 @@ const DashboardAdmin = () => {
         const s = await adminService.getDashboardStats();
         setSummary(s || summary);
       } catch {
-        // keep defaults
       } finally {
         setSummaryLoading(false);
       }
@@ -131,7 +164,6 @@ const DashboardAdmin = () => {
             ))}
           </div>
 
-          {/* Search & Filter */}
           <div className="bg-card rounded-2xl border border-border shadow-sm p-6 mt-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold">Filter Pencarian</h2>
@@ -161,40 +193,79 @@ const DashboardAdmin = () => {
               </div>
 
               <div className="relative min-w-[220px]">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => { setPage(1); setStatusFilter(e.target.value as any); }}
-                  className="appearance-none w-full pl-10 pr-8 py-3 border border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground font-medium shadow-sm hover:border-ring transition-all cursor-pointer"
-                >
-                  <option value="all">Semua Status</option>
-                  <option value="draft">Draft</option>
-                  <option value="pending">Pending</option>
-                  <option value="in_review">In Review</option>
-                  <option value="verified">Verified</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="w-full flex items-center justify-between px-3 py-3 border border-border rounded-xl bg-background text-foreground font-medium shadow-sm hover:border-ring transition-all"
+                      type="button"
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <Filter className="h-5 w-5 text-muted-foreground" />
+                        {statusFilter.length === 0
+                          ? 'Semua Status'
+                          : `${statusFilter.length} status dipilih`}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuCheckboxItem
+                      checked={statusFilter.includes('all')}
+                      onCheckedChange={() => setStatusFilter([])}
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      Semua Status
+                    </DropdownMenuCheckboxItem>
+                    <div className="border-t my-1" />
+                    {filterStatusOptions.map((opt) => (
+                      <DropdownMenuCheckboxItem
+                        key={opt.value}
+                        checked={statusFilter.includes(opt.value)}
+                        onCheckedChange={() => toggleStatusFilter(opt.value)}
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        {opt.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <div className="relative min-w-[160px]">
-                <label className="sr-only" htmlFor="per-page">Per Page</label>
-                <select
-                  id="per-page"
-                  value={limit}
-                  onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
-                  className="appearance-none w-full pr-8 pl-3 py-3 border border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground shadow-sm hover:border-ring cursor-pointer"
-                >
-                  <option value={10}>10 / halaman</option>
-                  <option value={20}>20 / halaman</option>
-                  <option value={50}>50 / halaman</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="w-full flex items-center justify-between px-3 py-3 border border-border rounded-xl bg-background text-foreground shadow-sm hover:border-ring transition-all"
+                    >
+                      <span className="text-sm">
+                        {limit} / halaman
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-40">
+                    <DropdownMenuItem
+                      onClick={() => { setPage(1); setLimit(10); }}
+                    >
+                      <span className={limit === 10 ? 'font-semibold' : ''}>10 / halaman</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => { setPage(1); setLimit(20); }}
+                    >
+                      <span className={limit === 20 ? 'font-semibold' : ''}>20 / halaman</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => { setPage(1); setLimit(50); }}
+                    >
+                      <span className={limit === 50 ? 'font-semibold' : ''}>50 / halaman</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
 
-          {/* Table (summary fields only) */}
           <div className="mt-6 bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -241,7 +312,6 @@ const DashboardAdmin = () => {
               </table>
             </div>
 
-            {/* Pagination */}
             <div className="flex items-center justify-between p-4 border-t border-border">
               <div className="text-sm text-muted-foreground">
                 Menampilkan {rows.length === 0 ? 0 : (page - 1) * limit + 1}–{(page - 1) * limit + rows.length} dari {total}
@@ -267,7 +337,6 @@ const DashboardAdmin = () => {
           </div>
         </div>
       </div>
-      {/* <Footer /> */}
     </div>
   );
 };

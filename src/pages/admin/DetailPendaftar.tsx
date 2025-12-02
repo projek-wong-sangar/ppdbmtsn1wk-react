@@ -53,7 +53,20 @@ const DetailPendaftarAdmin = () => {
         setLoading(true);
         setError('');
         setIsReviewing(false);
-        setIsReadOnly(false); 
+        setIsReadOnly(false);
+
+        const result = await adminService.getPendaftarDetail(id);
+        if (!isMounted) return;
+
+        setData(result);
+
+        const status = result.status?.toLowerCase();
+        const canReview = !status || !['draft', 'verified', 'rejected'].includes(status);
+
+        if (!canReview) {
+          setIsReadOnly(true);
+          return;
+        }
 
         try {
           const review = await adminService.startReviewPendaftar(id);
@@ -65,24 +78,18 @@ const DetailPendaftarAdmin = () => {
         } catch (e: any) {
           if (e?.response?.status === 409) {
             if (isMounted) {
-              setIsReadOnly(true); 
-              
+              setIsReadOnly(true);
+
               readOnlyToastId = toast.warning('Sedang direview admin lain', {
                 description: 'Anda hanya dapat melihat data (read-only).',
                 duration: Infinity,
               });
             }
           } else {
-            throw e; 
+            throw e;
           }
         }
-        
-        const result = await adminService.getPendaftarDetail(id);
-        if (isMounted) {
-          setData(result);
-        }
-
-      } catch (e: any) { 
+      } catch (e: any) {
         if (isMounted) {
           setError(e?.response?.data?.error || e?.message || 'Gagal memuat detail pendaftar');
         }
@@ -208,10 +215,9 @@ const DetailPendaftarAdmin = () => {
     if (s === 'verified') return <Badge className="bg-emerald-500 text-white">Verified</Badge>;
     if (s === 'rejected') return <Badge className="bg-rose-500 text-white">Rejected</Badge>;
     if (s === 'accepted') return <Badge className="bg-blue-500 text-white">Accepted</Badge>;
-    if (s === 'reviewing' || s === 'in_review') {
-      return <Badge className="bg-blue-500 text-white">In Review</Badge>;
-    }
-    return <Badge className="bg-amber-500 text-white">Pending</Badge>;
+    if (s === 'reviewing' || s === 'in_review') return <Badge className="bg-blue-500 text-white">In Review</Badge>;
+    if (s === 'pending') return <Badge className="bg-amber-500 text-white">Pending</Badge>;
+    return <Badge className="bg-slate-500 text-white">Draft</Badge>;
   };
 
   const BerkasItem = ({ label, url }: { label: string, url?: string }) => {
@@ -362,7 +368,7 @@ const DetailPendaftarAdmin = () => {
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Jenis Kelamin</label>
-                    <p className="font-medium">{data.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
+                    <p className="font-medium">{data.jenis_kelamin === 'L' ? 'Laki-laki' : data.jenis_kelamin === 'P' ? 'Perempuan' : '-'}</p>
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Agama</label>

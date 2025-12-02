@@ -117,14 +117,16 @@ export const adminService = {
     page?: number;
     limit?: number;
   }): Promise<{ data: AdminPendaftarSummary[]; total: number }> {
-    // Backend returns an array of summary rows (no pagination)
     const response = await api.get('/admin/pendaftar');
     const rows = (response.data || []) as AdminPendaftarSummary[];
 
-    // Client-side filter
     let filtered = rows;
     if (filters?.status && filters.status !== 'all') {
-      filtered = filtered.filter(r => String(r.status).toLowerCase() === String(filters.status).toLowerCase());
+      const statusList = filters.status.toLowerCase().split(',');
+      
+      filtered = filtered.filter(r => 
+        statusList.includes(String(r.status).toLowerCase())
+      );
     }
     if (filters?.search) {
       const q = filters.search.toLowerCase();

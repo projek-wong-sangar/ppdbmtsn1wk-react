@@ -7,10 +7,21 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PendaftaranData } from '@/services/pendaftaranService';
 import { pendaftaranStorage } from '@/utils/pendaftaranStorage';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
 import { cekService } from '@/services/cekService';
 import { toast } from 'sonner';
+
+import { CalendarIcon, ChevronDown } from "lucide-react";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const schema = z.object({
   nama_lengkap: z.string(),
@@ -18,19 +29,11 @@ const schema = z.object({
   nik: z.string().length(16, 'NIK harus 16 digit').regex(/^[0-9]{16}$/, 'NIK harus berupa 16 digit angka'),
   tempat_lahir: z.string().min(2, 'Tempat lahir minimal 2 karakter').regex(/^[a-zA-Z\s]+$/, 'Tempat lahir hanya boleh berisi huruf dan spasi'),
   tanggal_lahir: z
-    .string()
-    .refine(
-      (v) => v && (/\d{4}-\d{2}-\d{2}/.test(v) || /\d{2}[\/-]\d{2}[\/-]\d{4}/.test(v)),
-      { message: 'Format tanggal lahir tidak valid' }
-    )
+    .string({ required_error: 'Tanggal lahir wajib diisi' })
+    .min(1, 'Tanggal lahir wajib diisi')
     .refine((v) => {
       if (!v) return false;
-      let dateStr = v.replace(/-/g, '/');
-      if (!/^\d{4}\/\d{2}\/\d{2}$/.test(dateStr)) {
-        const [dd, mm, yyyy] = dateStr.split('/');
-        dateStr = `${yyyy}/${mm}/${dd}`;
-      }
-      const birthDate = new Date(dateStr);
+      const birthDate = new Date(v);
       if (isNaN(birthDate.getTime())) return false;
 
       const currentYear = new Date().getFullYear();
@@ -45,9 +48,9 @@ const schema = z.object({
       return age <= 15;
     }, { message: 'Umur maksimal 15 tahun pada tanggal 1 Juli tahun ini' }),
     jenis_kelamin: z.preprocess(
-      (val) => (val === '' ? undefined : val), // Jika string kosong, anggap 'undefined'
+      (val) => (val === '' ? undefined : val),
       z.enum(['L', 'P'], { 
-        required_error: 'Jenis kelamin wajib dipilih' // Sekarang error ini akan muncul
+        required_error: 'Jenis kelamin wajib dipilih'
       })
     ),
   agama: z.string({ required_error: 'Agama wajib diisi' }).min(1, 'Agama wajib diisi'),
@@ -72,46 +75,43 @@ interface Props {
 
 const Step1DataDiri = ({ data, onNext }: Props) => {
 
-  // --- PERBAIKAN DI SINI ---
-
-  // 1. Cek apakah data ini "baru" (artinya, NIK belum diisi)
-  // Backend mengirim `nik: ""` jika datanya NULL.
   const isNewData = (data.nik === '' || !data.nik);
 
-  const { register, handleSubmit, formState: { errors }, setValue, setError, reset, watch } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, setValue, setError, reset, watch, trigger } = useForm<FormData>({
     resolver: zodResolver(schema),
-    
-    // 2. Terapkan logika "data baru" ke defaultValues
     defaultValues: {
         ...data as FormData,
-        
-        // Jika data baru DAN anak_ke adalah 0 (default DB), set 'undefined' agar field kosong
         anak_ke: (isNewData && data.anak_ke === 0) ? undefined : data.anak_ke,
-        
-        // Jika data baru DAN jumlah_saudara adalah 0 (default DB), set 'undefined'
-        // Jika data LAMA dan 0, biarkan 0 (karena user mungkin memang mengisinya 0)
         jumlah_saudara: (isNewData && data.jumlah_saudara === 0) ? undefined : data.jumlah_saudara,
     },
   });
-  
-  // --- AKHIR PERBAIKAN ---
 
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(() => {
+    if (data.tanggal_lahir) {
+      const d = new Date(data.tanggal_lahir);
+      return isNaN(d.getTime()) ? undefined : d;
+    }
+    return undefined;
+  });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const localDraft = loadDraftStep(1);
     if (localDraft) {
-      // Saat load draf, pastikan data read-only (NISN, Nama) tetap dari server
       reset({ 
         ...localDraft, 
         nama_lengkap: data.nama_lengkap, 
         nisn: data.nisn 
       });
+      
+      if (localDraft.tanggal_lahir) {
+        const d = new Date(localDraft.tanggal_lahir);
+        if (!isNaN(d.getTime())) setDate(d);
+      }
     }
-    // (Logika 'else' tidak diperlukan lagi karena defaultValues sudah benar)
   }, [data, reset]);
 
-  // Auto-save draf
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = watch((values) => {
       saveDraftStep(1, values);
       pendaftaranStorage.saveData(values);
@@ -126,10 +126,7 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
     saveDraftStep(1, formData);
     pendaftaranStorage.saveData(formData);
 
-    // Cek NIK
     try {
-        // Cek NIK hanya jika NIK diubah (jika data.nik ada dan beda dari formData.nik)
-        // Tapi untuk simplifikasi, cek saja jika NIK baru
         if (isNewData) {
             const nikTaken = await cekService.cekNik(formData.nik);
             if (nikTaken) {
@@ -141,22 +138,11 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
         toast.error("Gagal validasi NIK", { description: "Gagal terhubung ke server untuk cek NIK." });
         return;
     }
-
-    // Normalisasi tanggal lahir
-    let raw = formData.tanggal_lahir.trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-      formData.tanggal_lahir = raw;
-    } else {
-      raw = raw.replace(/-/g, '/');
-      const [dd, mm, yyyy] = raw.split('/');
-      formData.tanggal_lahir = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
-    }
     
     const finalData = { ...data, ...formData };
     onNext(finalData as Partial<PendaftaranData>);
   };
 
-  // ... (Sisa handler tidak berubah) ...
   const handleNumberInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
       e.preventDefault();
@@ -168,17 +154,6 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
       e.preventDefault();
     }
   };
-  const handleTanggalDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let v = e.target.value || '';
-    v = v.replace(/[^0-9-]/g, '');
-    const parts = v.split('-');
-    if (parts[0]) parts[0] = parts[0].slice(0, 4);
-    if (parts[1]) parts[1] = parts[1].slice(0, 2);
-    if (parts[2]) parts[2] = parts[2].slice(0, 2);
-    v = parts.filter(Boolean).join('-');
-    setValue('tanggal_lahir', v, { shouldValidate: true });
-  };
-
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -219,18 +194,53 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
           <Input id="tempat_lahir" {...register('tempat_lahir')} />
           {errors.tempat_lahir && <p className="text-sm text-destructive mt-1">{errors.tempat_lahir.message}</p>}
         </div>
-        <div>
+        
+        <div className="flex flex-col gap-1">
           <Label htmlFor="tanggal_lahir">Tanggal Lahir *</Label>
-          <Input
-            id="tanggal_lahir"
-            type="date"
-            {...register('tanggal_lahir')}
-            onChange={handleTanggalDateChange}
-          />
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                id="tanggal_lahir"
+                className={cn(
+                  "w-full justify-between font-normal text-left px-3",
+                  !date && "text-muted-foreground",
+                  errors.tanggal_lahir && "border-destructive text-destructive"
+                )}
+              >
+                {date ? (
+                    format(date, "d MMMM yyyy", { locale: idLocale })
+                ) : (
+                    <span>Pilih tanggal lahir</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                captionLayout="dropdown"
+                startMonth={new Date(2010, 0)} 
+                endMonth={new Date(2015, 0)}
+                onSelect={(selectedDate) => {
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                    setValue('tanggal_lahir', format(selectedDate, 'yyyy-MM-dd'), { shouldValidate: true });
+                    setCalendarOpen(false);
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          <input type="hidden" {...register('tanggal_lahir')} />
+          
           {errors.tanggal_lahir && (
             <p className="text-sm text-destructive mt-1">{errors.tanggal_lahir.message}</p>
           )}
         </div>
+
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
