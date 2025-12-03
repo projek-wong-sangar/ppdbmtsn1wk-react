@@ -61,6 +61,14 @@ const WilayahDropdown: React.FC<WilayahDropdownProps> = ({
     kelurahan: false
   });
 
+  useEffect(() => {
+    if (defaultValues?.provinsi) setProvinsiValue(defaultValues.provinsi);
+    if (defaultValues?.kota) setKotaValue(defaultValues.kota);
+    if (defaultValues?.kabupaten) setKotaValue(defaultValues.kabupaten);
+    if (defaultValues?.kecamatan) setKecamatanValue(defaultValues.kecamatan);
+    if (defaultValues?.kelurahan) setKelurahanValue(defaultValues.kelurahan);
+  }, [defaultValues]);
+
   // Debounce function untuk search
   const useDebounce = (value: string, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);

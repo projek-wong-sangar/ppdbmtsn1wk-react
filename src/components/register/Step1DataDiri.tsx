@@ -87,6 +87,7 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
   });
 
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
   const [date, setDate] = useState<Date | undefined>(() => {
     if (data.tanggal_lahir) {
       const d = new Date(data.tanggal_lahir);
@@ -109,15 +110,23 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
         if (!isNaN(d.getTime())) setDate(d);
       }
     }
+    setIsDraftLoaded(true);
   }, [data, reset]);
 
   useEffect(() => {
+    if (!isDraftLoaded) return;
     const subscription = watch((values) => {
-      saveDraftStep(1, values);
-      pendaftaranStorage.saveData(values);
+      const hasData = Object.values(values).some(v => v !== undefined && v !== '' && v !== null);
+      if (hasData) {
+        saveDraftStep(1, values);
+        pendaftaranStorage.saveData(values);
+      }
     });
     return () => subscription.unsubscribe();
-  }, [watch]);
+  }, [watch, isDraftLoaded]);
+
+  const selectedJenisKelamin = watch('jenis_kelamin');
+  const selectedAgama = watch('agama');
 
   const jenisKelaminOptions = ['L', 'P'];
   const agamaOptions = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'];
@@ -246,7 +255,7 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="jenis_kelamin">Jenis Kelamin *</Label>
-          <Select onValueChange={(value) => setValue('jenis_kelamin', value as 'L' | 'P')} defaultValue={data.jenis_kelamin}>
+          <Select onValueChange={(value) => setValue('jenis_kelamin', value as 'L' | 'P', { shouldValidate: true })} value={selectedJenisKelamin}>
             <SelectTrigger>
               <SelectValue placeholder="Pilih" />
             </SelectTrigger>
@@ -258,7 +267,7 @@ const Step1DataDiri = ({ data, onNext }: Props) => {
         </div>
         <div>
           <Label htmlFor="agama">Agama *</Label>
-          <Select onValueChange={(value) => setValue('agama', value, { shouldValidate: true })} defaultValue={data.agama || ""}>
+          <Select onValueChange={(value) => setValue('agama', value, { shouldValidate: true })} value={selectedAgama}>
             <SelectTrigger>
               <SelectValue placeholder="Pilih" />
             </SelectTrigger>

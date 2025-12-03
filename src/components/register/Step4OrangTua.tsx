@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PendaftaranData } from '@/services/pendaftaranService';
 import { Separator } from '@/components/ui/separator';
 import { pendaftaranStorage } from '@/utils/pendaftaranStorage';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import * as React from 'react';
 import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
@@ -20,14 +20,14 @@ const schema = z
     pekerjaan_ayah: z.string().min(3,'Pekerjaan Ayah minimal 3 karakter'),
     penghasilan_ayah: z.string({ required_error: 'Penghasilan Ayah wajib diisi' }).min(1, 'Penghasilan Ayah wajib diisi'),
     pendidikan_ayah: z.string({ required_error: 'Pendidikan Ayah wajib diisi' }).min(1, 'Pendidikan Ayah wajib diisi'),
-    no_hp_ayah: z.string().length(10, 'Nomor HP Ayah harus 10 digit').regex(/^\d{10}$/, 'Nomor HP Ayah harus berupa 10 digit angka'),
+    no_hp_ayah: z.string().min(10, 'Nomor HP Ayah minimal 10 digit').max(14, 'Nomor HP Ayah maksimal 14 digit').regex(/^\d{10,14}$/, 'Nomor HP Ayah harus berupa angka'),
 
     nama_ibu: z.string().min(3,'Nama Ibu minimal 3 karakter'),
     nik_ibu: z.string().length(16, 'NIK harus 16 digit').regex(/^[0-9]{16}$/, 'NIK harus berupa 16 digit angka'),
     pekerjaan_ibu: z.string().min(3,'Pekerjaan Ibu minimal 3 karakter'),
     penghasilan_ibu: z.string({ required_error: 'Penghasilan Ibu wajib diisi' }).min(1, 'Penghasilan Ibu wajib diisi'),
     pendidikan_ibu: z.string({ required_error: 'Pendidikan Ibu wajib diisi' }).min(1, 'Pendidikan Ibu wajib diisi'),
-    no_hp_ibu: z.string().length(10, 'Nomor HP Ibu harus 10 digit').regex(/^\d{10}$/, 'Nomor HP Ibu harus berupa 10 digit angka'),
+    no_hp_ibu: z.string().min(10, 'Nomor HP Ibu minimal 10 digit').max(14, 'Nomor HP Ibu maksimal 14 digit').regex(/^\d{10,14}$/, 'Nomor HP Ibu harus berupa angka'),
 
     // Wali (opsional secara field, tapi akan diatur oleh checkbox & superRefine)
     nama_wali: z.string().optional(),
@@ -75,21 +75,8 @@ const schema = z
         return;
       }
     } else {
-      // Tidak tinggal dengan wali → boleh kosong semua,
-      // tetapi jika ada satu terisi, semua harus terisi (all-or-none)
-      if (filledCount > 0 && filledCount < waliKeys.length) {
-        waliKeys.forEach((k) => {
-          if (!isFilled((val as any)[k])) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              path: [k],
-              message: 'Lengkapi semua data wali atau kosongkan semuanya',
-            });
-          }
-        });
-        return;
-      }
-      if (filledCount === 0) return; // kosong semua: valid
+      // Jika tidak tinggal dengan wali, abaikan validasi field wali
+      return;
     }
 
     // Validasi minimum saat semua field wali terisi
@@ -160,13 +147,28 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
     if (draft) reset(draft);
   }, [reset]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = watch((values) => {
       saveDraftStep(4, values);
       pendaftaranStorage.saveData(values);
     });
     return () => subscription.unsubscribe();
   }, [watch]);
+
+  // Sync hubungan_wali state with form value
+  const hubunganWaliValue = watch('hubungan_wali');
+  useEffect(() => {
+    if (hubunganWaliValue && !HubunganWaliOptions.includes(hubunganWaliValue)) {
+      setIsHubunganLainnya(true);
+      setHubunganWaliPilihan('Lainnya');
+    } else if (hubunganWaliValue) {
+      setIsHubunganLainnya(false);
+      setHubunganWaliPilihan(hubunganWaliValue);
+    } else {
+      setIsHubunganLainnya(false);
+      setHubunganWaliPilihan('');
+    }
+  }, [hubunganWaliValue]);
 
   const tinggalDenganWali = watch('tinggal_dengan_wali') || false;
 
@@ -336,7 +338,7 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
           </div>
           <div>
             <Label>Penghasilan</Label>
-            <Select onValueChange={(v) => setValue('penghasilan_wali', v)} defaultValue={data.penghasilan_wali}>
+            <Select onValueChange={(v) => setValue('penghasilan_wali', v, { shouldValidate: true })} defaultValue={data.penghasilan_wali}>
               <SelectTrigger disabled={!tinggalDenganWali}><SelectValue placeholder="Pilih" /></SelectTrigger>
               <SelectContent>
                 {penghasilanOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
@@ -346,7 +348,7 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
           </div>
           <div>
             <Label>Pendidikan</Label>
-            <Select onValueChange={(v) => setValue('pendidikan_wali', v)} defaultValue={data.pendidikan_wali}>
+            <Select onValueChange={(v) => setValue('pendidikan_wali', v, { shouldValidate: true })} defaultValue={data.pendidikan_wali}>
               <SelectTrigger disabled={!tinggalDenganWali}><SelectValue placeholder="Pilih" /></SelectTrigger>
               <SelectContent>
                 {pendidikanOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
@@ -366,7 +368,7 @@ const Step4OrangTua = ({ data, onNext, onPrev }: Props) => {
                 setHubunganWaliPilihan(v);
                 const isLainnya = v === 'Lainnya';
                 setIsHubunganLainnya(isLainnya);
-                setValue('hubungan_wali', isLainnya ? '' : v);
+                setValue('hubungan_wali', isLainnya ? '' : v, { shouldValidate: true });
               }}
               defaultValue={HubunganWaliOptions.includes((data.hubungan_wali as string) || '') ? data.hubungan_wali : undefined}
             >

@@ -43,8 +43,10 @@ interface Props {
 const Step2Alamat = ({ data, onNext, onPrev }: Props) => {
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: data as FormData, // Email akan terisi dari 'data'
+    defaultValues: data as FormData,
   });
+
+  const values = watch();
 
   // Load draf dari local storage
   React.useEffect(() => {
@@ -152,10 +154,10 @@ const Step2Alamat = ({ data, onNext, onPrev }: Props) => {
         errorKelurahan={errors.desa?.message}
         // Kirim nilai default (jika ada) ke dropdown
         defaultValues={{
-          provinsi: data.provinsi,
-          kabupaten: data.kabupaten, // <-- Fix 1: ganti 'kota' jadi 'kabupaten'
-          kecamatan: data.kecamatan,
-          kelurahan: data.desa      // <-- Fix 2: ganti 'desa' jadi 'kelurahan'
+          provinsi: values.provinsi,
+          kabupaten: values.kabupaten, // <-- Fix 1: ganti 'kota' jadi 'kabupaten'
+          kecamatan: values.kecamatan,
+          kelurahan: values.desa      // <-- Fix 2: ganti 'desa' jadi 'kelurahan'
         }}
       />
 

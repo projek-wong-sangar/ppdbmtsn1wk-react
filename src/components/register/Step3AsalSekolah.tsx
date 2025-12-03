@@ -12,7 +12,7 @@ import { saveDraftStep, loadDraftStep } from '@/utils/pendaftaranStorage';
 
 const schema = z.object({
   asal_sekolah: z.string().min(5, 'Nama sekolah minimal 5 karakter'),
-  npsn_sekolah: z.string().length(8, 'NPSN harus 8 digit').regex(/^\d{8}$/, 'NPSN harus berupa 8 digit angka'),
+  // npsn_sekolah: z.string().length(8, 'NPSN harus 8 digit').regex(/^\d{8}$/, 'NPSN harus berupa 8 digit angka'),
   alamat_sekolah: z.string().min(10, 'Alamat sekolah minimal 10 karakter'),
   tahun_lulus: z.string().length(4, 'Tahun Lulus harus 4 digit').regex(/^\d{4}$/, 'Tahun Lulus harus berupa 4 digit angka'),
   no_ijazah: z.string().min(5, 'Nomor ijazah wajib diisi'),
@@ -67,11 +67,11 @@ const Step3AsalSekolah = ({ data, onNext, onPrev }: Props) => {
         {errors.asal_sekolah && <p className="text-sm text-destructive mt-1">{errors.asal_sekolah.message}</p>}
       </div>
 
-      <div>
+      {/* <div>
         <Label htmlFor="npsn_sekolah">NPSN Sekolah *</Label>
         <Input id="npsn_sekolah" {...register('npsn_sekolah')} placeholder="12345678" />
         {errors.npsn_sekolah && <p className="text-sm text-destructive mt-1">{errors.npsn_sekolah.message}</p>}
-      </div>
+      </div> */}
 
       <div>
         <Label htmlFor="alamat_sekolah">Alamat Sekolah *</Label>
